@@ -91,7 +91,10 @@ internal sealed class OidcTokenValidator(
                     continue;
                 }
 
-                return OidcValidationResult.Valid(new OidcIdentity(issuer.Name, issuer.Issuer, jwt.Subject, issuer.AllowPreview));
+                return OidcValidationResult.Valid(new OidcIdentity(issuer.Name, issuer.Issuer, jwt.Subject, issuer.AllowPreview)
+                {
+                    Claims = result.ClaimsIdentity.Claims.ToList(),
+                });
             }
         }
 
