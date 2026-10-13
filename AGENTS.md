@@ -34,3 +34,10 @@ in the package csproj, as the existing MailKit and MessagePack floors do.
 - A refused token must never end the request. Log it and let Umbraco answer.
 - Never log the token itself.
 - A custom issuer must require at least one claim. Issuer and audience alone often admit anyone.
+
+## Releasing
+
+A GitHub Release publishes to nuget.org through `.github/workflows/publish-nuget.yml`; `RELEASE.md` has
+the setup and steps. Never publish by hand. The Umbraco Marketplace listing comes from
+`umbraco-marketplace.json` and `umbraco-marketplace-readme.md` at the root, plus the `umbraco-marketplace`
+tag on the package.

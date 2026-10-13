@@ -35,11 +35,16 @@ internal sealed class FakeIssuers : IIssuerConfigurationProvider
 
     public List<string> RequestedAddresses { get; } = [];
 
+    /// <summary>Keys published beside the real one, to test what the validator refuses to use.</summary>
+    public List<SecurityKey> ExtraKeys { get; } = [];
+
     public BaseConfigurationManager Get(string metadataAddress)
     {
         RequestedAddresses.Add(metadataAddress);
         var configuration = new OpenIdConnectConfiguration();
         configuration.SigningKeys.Add(_key);
+        foreach (var key in ExtraKeys)
+            configuration.SigningKeys.Add(key);
         return new StaticConfigurationManager<OpenIdConnectConfiguration>(configuration);
     }
 
@@ -110,6 +115,8 @@ internal sealed class FakeIssuers : IIssuerConfigurationProvider
             IssuedAt = Now.UtcDateTime,
             NotBefore = Now.UtcDateTime,
             Expires = (expires ?? Now.AddHours(1)).UtcDateTime,
-            SigningCredentials = new SigningCredentials(signingKey ?? _key, SecurityAlgorithms.RsaSha256),
+            SigningCredentials = new SigningCredentials(
+                signingKey ?? _key,
+                signingKey is SymmetricSecurityKey ? SecurityAlgorithms.HmacSha256 : SecurityAlgorithms.RsaSha256),
         });
 }

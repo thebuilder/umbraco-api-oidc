@@ -136,6 +136,23 @@ public sealed class OidcTokenValidatorTests
     }
 
     [Fact]
+    public async Task Refuses_a_symmetric_signature_even_with_a_published_key()
+    {
+        var shared = new SymmetricSecurityKey(RandomNumberGenerator.GetBytes(32)) { KeyId = "shared" };
+        _issuers.ExtraKeys.Add(shared);
+
+        Assert.False((await Validate(_issuers.VercelToken(signingKey: shared))).IsValid);
+    }
+
+    [Fact]
+    public async Task Keeps_an_untrusted_issuer_short_in_the_failure()
+    {
+        var result = await Validate(_issuers.VercelToken(issuer: "https://" + new string('a', 5000)));
+
+        Assert.True(result.Failure!.Length < 300);
+    }
+
+    [Fact]
     public async Task Refuses_garbage()
     {
         Assert.False((await Validate("not.a.jwt")).IsValid);

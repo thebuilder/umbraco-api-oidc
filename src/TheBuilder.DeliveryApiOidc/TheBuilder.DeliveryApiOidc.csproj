@@ -4,6 +4,7 @@
     <PackageId>TheBuilder.DeliveryApiOidc</PackageId>
     <Product>OIDC for the Delivery API</Product>
     <Title>OIDC workload tokens for the Umbraco Delivery API</Title>
+    <!-- The local fallback. A release sets the version from its tag; see RELEASE.md. -->
     <Version>0.1.0</Version>
     <Authors>Daniel Schmidt</Authors>
     <Description>Let Vercel, GitHub Actions and other workloads read the Umbraco Delivery API with their OIDC token instead of a shared API key.</Description>
@@ -13,6 +14,8 @@
     <RepositoryUrl>https://github.com/thebuilder/umbraco-delivery-api-oidc.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReleaseNotes>See https://github.com/thebuilder/umbraco-delivery-api-oidc/releases for release notes.</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
@@ -28,6 +31,7 @@
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="TheBuilder.DeliveryApiOidc.Tests" />
