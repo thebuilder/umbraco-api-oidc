@@ -69,7 +69,7 @@ jobs:
       - name: Download verified package
         uses: actions/download-artifact@v4
         with:
-          name: TheBuilder.DeliveryApiOidc-package
+          name: TheBuilder.ApiOidc-package
           path: artifacts
 
       # Trusted publishing: GitHub's short-lived OIDC token is exchanged for a temporary NuGet API

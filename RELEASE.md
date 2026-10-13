@@ -17,7 +17,7 @@ There is nothing to submit.
    - Package owner: `the_builder`
    - Publisher: GitHub Actions
    - Repository owner: `thebuilder`
-   - Repository: `umbraco-delivery-api-oidc`
+   - Repository: `umbraco-api-oidc`
    - Workflow: `publish-nuget.yml`
    - Environment: `nuget`
 
@@ -27,7 +27,7 @@ for a temporary NuGet API key, so no long-lived NuGet API key is stored in GitHu
 ## Before a release
 
 1. Check that CI passes for the commit you are releasing.
-2. Run `dotnet list src/TheBuilder.DeliveryApiOidc/TheBuilder.DeliveryApiOidc.csproj package --vulnerable --include-transitive`
+2. Run `dotnet list src/TheBuilder.ApiOidc/TheBuilder.ApiOidc.csproj package --vulnerable --include-transitive`
    and resolve any high or critical finding. `Directory.Build.props` suppresses five ImageSharp
    advisories that come with Umbraco 17 itself; check whether Umbraco has shipped a fixed ImageSharp
    and the suppressions can go.

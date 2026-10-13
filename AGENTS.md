@@ -1,26 +1,28 @@
 # AGENTS
 
 An Umbraco package that lets workloads (Vercel, GitHub Actions, Google Cloud, AWS and other OIDC issuers)
-authenticate to the Content Delivery API with their OIDC token instead of the shared Delivery API key.
+authenticate to the Content Delivery API, and to custom endpoints that opt in, with their OIDC token instead
+of the shared Delivery API key.
 
 ## Layout
 
-- `src/TheBuilder.DeliveryApiOidc/` - the package. No backoffice UI; it is configured from appsettings.
-  - `Configuration/` - `DeliveryApiOidcOptions`, bound from `TheBuilder:DeliveryApiOidc`, and
+- `src/TheBuilder.ApiOidc/` - the package. No backoffice UI; it is configured from appsettings.
+  - `Configuration/` - `ApiOidcOptions`, bound from `TheBuilder:ApiOidc`, and
     `TrustedIssuerResolver`, which expands the Vercel and GitHub Actions presets into issuer, audience and
     claim rules. Add a new preset there.
   - `Tokens/` - JWT validation against each issuer's published keys, then the issuer entry's claim rules.
   - `DeliveryApi/` - the middleware that validates the token, and the `IApiAccessService` replacement.
+  - `Authentication/` - the authentication scheme, policy and `[RequireOidcToken]` for custom endpoints.
   - `Composition/` - the composer that wires it all up.
-- `tests/TheBuilder.DeliveryApiOidc.Tests/` - xunit v3. Tokens are minted locally with a throwaway RSA key.
-- `samples/TheBuilder.DeliveryApiOidc.Example/` - an Umbraco site for trying the package by hand.
+- `tests/TheBuilder.ApiOidc.Tests/` - xunit v3. Tokens are minted locally with a throwaway RSA key.
+- `samples/TheBuilder.ApiOidc.Example/` - an Umbraco site for trying the package by hand.
 
 ## Commands
 
 ```sh
-dotnet build TheBuilder.DeliveryApiOidc.slnx -c Release
-dotnet test TheBuilder.DeliveryApiOidc.slnx -c Release
-dotnet pack src/TheBuilder.DeliveryApiOidc/TheBuilder.DeliveryApiOidc.csproj -c Release -o artifacts
+dotnet build TheBuilder.ApiOidc.slnx -c Release
+dotnet test TheBuilder.ApiOidc.slnx -c Release
+dotnet pack src/TheBuilder.ApiOidc/TheBuilder.ApiOidc.csproj -c Release -o artifacts
 ```
 
 `TreatWarningsAsErrors` is on everywhere, NuGet audit warnings included, so a vulnerable transitive

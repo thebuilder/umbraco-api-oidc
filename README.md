@@ -1,12 +1,13 @@
-# TheBuilder.DeliveryApiOidc
+# TheBuilder.ApiOidc
 
-Let your frontends read the Umbraco Delivery API with the OIDC token their platform already gives them,
-instead of a shared API key.
+Let your frontends call the Umbraco Delivery API, and your own API endpoints, with the OIDC token their
+platform already gives them, instead of a shared API key.
 
 Umbraco protects a private Delivery API with one API key. Every frontend gets the same key, it lives in
 environment variables forever, and rotating it means touching every project at once. Most hosting and CI
 platforms now give each workload a short-lived, signed token that says who it is. This package teaches
-Umbraco to accept those tokens.
+Umbraco to accept those tokens, on the Delivery API and on any endpoint you
+[protect with `[RequireOidcToken]`](#protecting-your-own-endpoints).
 
 - **No shared secret.** Tokens are signed by the platform and expire on their own. There is nothing to rotate.
 - **Scoped to exactly who you trust.** You list the Vercel projects, GitHub repositories or other workloads
@@ -35,7 +36,7 @@ the API key.
 1. Install the package in your Umbraco site:
 
    ```sh
-   dotnet add package TheBuilder.DeliveryApiOidc
+   dotnet add package TheBuilder.ApiOidc
    ```
 
 2. Make sure your `Program.cs` calls `AddDeliveryApi()` before `AddComposers()`, as Umbraco's template
@@ -54,7 +55,7 @@ the API key.
        }
      },
      "TheBuilder": {
-       "DeliveryApiOidc": {
+       "ApiOidc": {
          "Issuers": [
            {
              "Preset": "Vercel",
@@ -79,6 +80,45 @@ the API key.
 
 5. Once no frontend sends the `Api-Key` header any more, remove `Umbraco:CMS:DeliveryApi:ApiKey`.
 
+## Protecting your own endpoints
+
+The same tokens can protect your own API controllers and minimal APIs, such as a search endpoint that only
+your frontend should call. Add `[RequireOidcToken]` to a controller or action:
+
+```csharp
+using TheBuilder.ApiOidc.Authentication;
+
+[ApiController]
+[Route("api/search")]
+[RequireOidcToken]
+public sealed class SearchController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult Search(string query) => Ok(/* ... */);
+}
+```
+
+Or, for a minimal API, call `RequireOidcToken()`:
+
+```csharp
+app.MapGet("/api/search", (string query) => /* ... */).RequireOidcToken();
+```
+
+A request without a valid token gets a `401`. The token goes in the same header and is checked against the
+same `Issuers` as on the Delivery API. To accept only some of them, pass their `Name`s exactly as
+configured, for example `[RequireOidcToken("Vercel")]`. A token from another trusted issuer then gets a `403`.
+Only a token checked by this package satisfies the attribute, even when the endpoint also accepts a cookie
+or another scheme.
+
+Inside the endpoint, `User` carries the token's claims under their own names, such as `sub`, `project` or
+`repository`, plus `oidc_issuer_name` with the `Name` of the issuer that accepted it.
+
+If you prefer plain ASP.NET Core authorization, the package also registers the authentication scheme
+`OidcAuthenticationDefaults.AuthenticationScheme` and the policy `OidcAuthenticationDefaults.Policy`, so
+`[Authorize(Policy = OidcAuthenticationDefaults.Policy)]` works too. Neither is a default, so the backoffice,
+members and every endpoint that does not ask for a token are unaffected. The API key is not accepted on
+these endpoints.
+
 ## Issuers
 
 Each entry in `Issuers` is one source of tokens. A token is accepted when its issuer, audience and claims
@@ -86,7 +126,7 @@ match an entry. Every entry accepts these settings:
 
 | Setting          | What it does |
 | ---------------- | ------------ |
-| `Name`           | A name for log messages. Defaults to the preset or the issuer URL. |
+| `Name`           | A name for log messages and for `[RequireOidcToken(...)]`. Defaults to the preset or the issuer URL. |
 | `Preset`         | `Vercel`, `GitHubActions`, or `Custom` (the default). |
 | `Audience`       | The `aud` the token must carry. |
 | `RequiredClaims` | Claims the token must carry, each with its allowed values. Added to the preset's own rules. |
@@ -211,14 +251,17 @@ member authorization, you can set `HeaderName` to `Authorization`.
 A refused token is logged as a warning with the reason, and the request carries on. Umbraco then
 answers it as it would any request without credentials.
 
+On your own endpoints, an ASP.NET Core authentication handler does the same validation, and only for
+endpoints that require it.
+
 ## Development
 
 ```sh
-dotnet build TheBuilder.DeliveryApiOidc.slnx
-dotnet test TheBuilder.DeliveryApiOidc.slnx
+dotnet build TheBuilder.ApiOidc.slnx
+dotnet test TheBuilder.ApiOidc.slnx
 ```
 
-`samples/TheBuilder.DeliveryApiOidc.Example` is an Umbraco site that references the package. It installs
+`samples/TheBuilder.ApiOidc.Example` is an Umbraco site that references the package. It installs
 itself unattended into SQLite on first run.
 
 [RELEASE.md](RELEASE.md) describes how a GitHub Release publishes the package to nuget.org and the
