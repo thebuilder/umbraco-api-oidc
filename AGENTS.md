@@ -7,7 +7,7 @@ of the shared Delivery API key.
 ## Layout
 
 - `src/TheBuilder.ApiOidc/` - the package. No backoffice UI; it is configured from appsettings.
-  - `Configuration/` - `ApiOidcOptions`, bound from `TheBuilder:ApiOidc`, and
+  - `Configuration/` - `ApiOidcOptions`, bound from `ApiOidc`, and
     `TrustedIssuerResolver`, which expands the Vercel and GitHub Actions presets into issuer, audience and
     claim rules. Add a new preset there.
   - `Tokens/` - JWT validation against each issuer's published keys, then the issuer entry's claim rules.

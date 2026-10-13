@@ -2,12 +2,12 @@ namespace TheBuilder.ApiOidc.Configuration;
 
 /// <summary>
 ///     Which workloads may call the Delivery API, and endpoints that require a token, with an OIDC token. Bound
-///     from <c>TheBuilder:ApiOidc</c>.
+///     from <c>ApiOidc</c>.
 /// </summary>
 public sealed class ApiOidcOptions
 {
     /// <summary>The configuration section the options are read from.</summary>
-    public const string SectionName = "TheBuilder:ApiOidc";
+    public const string SectionName = "ApiOidc";
 
     /// <summary>The issuers whose tokens are accepted. Leaving it empty turns the package off.</summary>
     public IList<TrustedIssuerOptions> Issuers { get; set; } = [];
