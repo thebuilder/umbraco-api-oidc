@@ -1,33 +1,47 @@
-# TheBuilder.VercelOidc
+# TheBuilder.DeliveryApiOidc
 
-Let your Vercel deployments read the Umbraco Delivery API with their own OIDC token, instead of a
-shared API key.
+Let your frontends read the Umbraco Delivery API with the OIDC token their platform already gives them,
+instead of a shared API key.
 
 Umbraco protects a private Delivery API with one API key. Every frontend gets the same key, it lives in
-environment variables forever, and rotating it means touching every project at once. Vercel already gives
-each deployment a short-lived, signed token that says which team, project and environment it belongs to.
-This package teaches Umbraco to accept that token.
+environment variables forever, and rotating it means touching every project at once. Most hosting and CI
+platforms now give each workload a short-lived, signed token that says who it is. This package teaches
+Umbraco to accept those tokens.
 
-- **No shared secret.** Tokens are signed by Vercel and expire on their own. There is nothing to rotate.
-- **Scoped by project and environment.** You list the Vercel projects, and the environments, that may
-  read content. A token from any other project gets a `401`.
-- **Drop-in.** Public access, media access and the API key keep working exactly as before, so you can
-  move frontends over one at a time and remove the API key when the last one is done.
+- **No shared secret.** Tokens are signed by the platform and expire on their own. There is nothing to rotate.
+- **Scoped to exactly who you trust.** You list the Vercel projects, GitHub repositories or other workloads
+  that may read content. A token from anyone else gets a `401`.
+- **Drop-in.** Public access, media access and the API key keep working exactly as before, so you can move
+  frontends over one at a time and remove the API key when the last one is done.
 
 The package requires Umbraco 17 or 18.
+
+## Which platforms work
+
+| Platform | How the frontend gets a token | Setup |
+| --- | --- | --- |
+| Vercel functions and builds | `getVercelOidcToken()` from `@vercel/oidc` | `Vercel` preset |
+| GitHub Actions | `core.getIDToken(audience)` | `GitHubActions` preset |
+| Google Cloud Run and Functions | The metadata server, with your audience | Custom issuer |
+| AWS Lambda, ECS and EC2 | STS `GetWebIdentityToken` (IAM outbound identity federation) | Custom issuer |
+| Azure | A managed identity token from Entra ID | Custom issuer |
+| GitLab CI | `id_tokens` in `.gitlab-ci.yml` | Custom issuer |
+
+Cloudflare Workers and Netlify Functions have no built-in workload token, so frontends there keep using
+the API key.
 
 ## Getting started
 
 1. Install the package in your Umbraco site:
 
    ```sh
-   dotnet add package TheBuilder.VercelOidc
+   dotnet add package TheBuilder.DeliveryApiOidc
    ```
 
 2. Make sure your `Program.cs` calls `AddDeliveryApi()` before `AddComposers()`, as Umbraco's template
    does. The package replaces the Delivery API's access check, so it has to come after it.
 
-3. Configure which Vercel deployments may read content:
+3. List the issuers you trust:
 
    ```json
    {
@@ -40,60 +54,112 @@ The package requires Umbraco 17 or 18.
        }
      },
      "TheBuilder": {
-       "VercelOidc": {
-         "TeamSlug": "acme",
-         "Projects": ["acme-web"]
+       "DeliveryApiOidc": {
+         "Issuers": [
+           {
+             "Preset": "Vercel",
+             "Team": "acme",
+             "Projects": ["acme-web"]
+           }
+         ]
        }
      }
    }
    ```
 
-4. In your Vercel project, send the token with each Delivery API request:
+4. Send the token in the `X-Oidc-Token` header with each Delivery API request. On Vercel:
 
    ```ts
    import { getVercelOidcToken } from '@vercel/oidc';
 
    const response = await fetch(`${process.env.UMBRACO_URL}/umbraco/delivery/api/v2/content`, {
-     headers: { 'X-Vercel-Oidc-Token': await getVercelOidcToken() },
+     headers: { 'X-Oidc-Token': await getVercelOidcToken() },
    });
    ```
 
-   `getVercelOidcToken()` reads the token from the incoming request in a Vercel function, and from
-   `VERCEL_OIDC_TOKEN` during builds, so static generation works too. For local development, run
-   `vercel env pull` to get a development token, and add `development` to `Environments`.
-
 5. Once no frontend sends the `Api-Key` header any more, remove `Umbraco:CMS:DeliveryApi:ApiKey`.
 
-## Configuration
+## Issuers
 
-All settings live under `TheBuilder:VercelOidc`.
+Each entry in `Issuers` is one source of tokens. A token is accepted when its issuer, audience and claims
+match an entry. Every entry accepts these settings:
 
-| Setting        | Default                    | What it does |
-| -------------- | -------------------------- | ------------ |
-| `TeamSlug`     | *(empty)*                  | Your Vercel team slug. Leaving it empty turns the package off. |
-| `IssuerMode`   | `Team`                     | `Team` or `Global`, matching the issuer mode in your Vercel team's OIDC settings. |
-| `Audience`     | `https://vercel.com/{team}`| Set this if you request the token with a custom audience. |
-| `Projects`     | *(required)*               | Project names or ids (`prj_...`) allowed to read content. |
-| `Environments` | `production`, `preview`    | Vercel environments allowed to read content. |
-| `AllowPreview` | `true`                     | Whether a valid token also unlocks draft content, as the API key does. |
-| `HeaderName`   | `X-Vercel-Oidc-Token`      | The header that carries the token. A `Bearer ` prefix is accepted. |
-| `ClockSkew`    | `00:01:00`                 | How far token lifetimes may disagree with the server clock. |
+| Setting          | What it does |
+| ---------------- | ------------ |
+| `Name`           | A name for log messages. Defaults to the preset or the issuer URL. |
+| `Preset`         | `Vercel`, `GitHubActions`, or `Custom` (the default). |
+| `Audience`       | The `aud` the token must carry. |
+| `RequiredClaims` | Claims the token must carry, each with its allowed values. Added to the preset's own rules. |
+| `AllowPreview`   | Whether the token also unlocks draft content, as the API key does. Defaults to `true`. |
+| `MetadataAddress`| Where the issuer publishes its keys. Defaults to `{issuer}/.well-known/openid-configuration`. |
 
-The site refuses to start if `TeamSlug` is set but `Projects` or `Environments` is empty, so a typo
-cannot quietly open the API to every project on the team.
+### Vercel
+
+```json
+{ "Preset": "Vercel", "Team": "acme", "Projects": ["acme-web", "prj_123"] }
+```
+
+- `Team` is your team slug. `Projects` takes names or ids.
+- `Environments` defaults to `production` and `preview`. Add `development` to use the token
+  `vercel env pull` writes for local work.
+- `IssuerMode` is `Team` (the default) or `Global`, matching your team's OIDC settings on Vercel.
+- `Audience` defaults to `https://vercel.com/{team}`, which is what `getVercelOidcToken()` returns.
+- Builds get a token too, through `VERCEL_OIDC_TOKEN`, so static generation works.
+
+### GitHub Actions
+
+```json
+{
+  "Preset": "GitHubActions",
+  "Audience": "https://cms.example.com",
+  "Repositories": ["acme/site"],
+  "Refs": ["refs/heads/main"]
+}
+```
+
+Request the token with the same audience, in a job with `permissions: id-token: write`:
+
+```js
+const token = await core.getIDToken('https://cms.example.com');
+```
+
+`Audience` and `Repositories` are required. `Refs` and `Environments` are optional filters.
+
+### Any other issuer
+
+```json
+{
+  "Name": "renderer",
+  "Issuer": "https://accounts.google.com",
+  "Audience": "https://cms.example.com",
+  "RequiredClaims": { "email": ["renderer@acme.iam.gserviceaccount.com"] }
+}
+```
+
+`Issuer`, `Audience` and at least one required claim are needed. Without a claim, any workload the
+issuer serves could get in. With Google, for example, that would be anyone with a Google account.
+
+### Other settings
+
+| Setting      | Default        | What it does |
+| ------------ | -------------- | ------------ |
+| `HeaderName` | `X-Oidc-Token` | The header that carries the token. A `Bearer ` prefix is accepted. |
+| `ClockSkew`  | `00:01:00`     | How far token lifetimes may disagree with the server clock. |
+
+The site refuses to start if an issuer is missing what it needs, so a typo cannot quietly let everyone in.
 
 ### Why not the `Authorization` header?
 
-Vercel's examples send the token as `Authorization: Bearer`. The Delivery API already uses that header
-for member authorization, so this package defaults to its own header. If your site does not use member
-authorization, you can set `HeaderName` to `Authorization`.
+Many platforms' examples send the token as `Authorization: Bearer`. The Delivery API already uses that
+header for member authorization, so this package defaults to its own header. If your site does not use
+member authorization, you can set `HeaderName` to `Authorization`.
 
 ## How it works
 
 1. A middleware runs at the start of Umbraco's pipeline. For requests under `/umbraco/delivery/api`
-   that carry the header, it validates the token: the signature against the keys Vercel publishes at
-   `https://oidc.vercel.com/{team}/.well-known/jwks`, then the issuer, audience and lifetime, and
-   finally the team, project and environment claims.
+   that carry the header, it finds the trusted issuers matching the token's `iss`, and validates the
+   signature against the keys that issuer publishes. Then it checks the audience, the lifetime and the
+   claims the issuer entry requires.
 2. The package replaces Umbraco's `IApiAccessService` with one that grants access when step 1 found a
    valid token, and otherwise applies Umbraco's own rules unchanged.
 
@@ -103,11 +169,11 @@ answers it as it would any request without credentials.
 ## Development
 
 ```sh
-dotnet build TheBuilder.VercelOidc.slnx
-dotnet test TheBuilder.VercelOidc.slnx
+dotnet build TheBuilder.DeliveryApiOidc.slnx
+dotnet test TheBuilder.DeliveryApiOidc.slnx
 ```
 
-`samples/TheBuilder.VercelOidc.Example` is an Umbraco site that references the package. It installs
+`samples/TheBuilder.DeliveryApiOidc.Example` is an Umbraco site that references the package. It installs
 itself unattended into SQLite on first run.
 
 ## License

@@ -38,7 +38,7 @@ jobs:
 
       - name: Test
         run: >-
-          dotnet test tests/TheBuilder.VercelOidc.Tests/TheBuilder.VercelOidc.Tests.csproj
+          dotnet test tests/TheBuilder.DeliveryApiOidc.Tests/TheBuilder.DeliveryApiOidc.Tests.csproj
           --configuration Release
           '-p:UmbracoVersion=${{ matrix.umbraco-version }}'
 
@@ -54,10 +54,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Build sample
-        run: dotnet build samples/TheBuilder.VercelOidc.Example/TheBuilder.VercelOidc.Example.csproj --configuration Release
+        run: dotnet build samples/TheBuilder.DeliveryApiOidc.Example/TheBuilder.DeliveryApiOidc.Example.csproj --configuration Release
 
       - name: Pack
-        run: dotnet pack src/TheBuilder.VercelOidc/TheBuilder.VercelOidc.csproj --configuration Release --output artifacts
+        run: dotnet pack src/TheBuilder.DeliveryApiOidc/TheBuilder.DeliveryApiOidc.csproj --configuration Release --output artifacts
 
       - uses: actions/upload-artifact@v4
         with:

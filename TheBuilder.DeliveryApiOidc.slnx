@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/TheBuilder.DeliveryApiOidc/TheBuilder.DeliveryApiOidc.csproj" />
+  <Project Path="samples/TheBuilder.DeliveryApiOidc.Example/TheBuilder.DeliveryApiOidc.Example.csproj" />
+  <Project Path="tests/TheBuilder.DeliveryApiOidc.Tests/TheBuilder.DeliveryApiOidc.Tests.csproj" />
+</Solution>

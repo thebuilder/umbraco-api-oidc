@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <UserSecretsId>TheBuilder.DeliveryApiOidc.Example</UserSecretsId>
+    <IsPackable>false</IsPackable>
+    <!-- The sample is never shipped, and Umbraco's own ImageSharp dependency has advisories with no patched 3.x
+         release to lift it to. Audit findings stay visible here as warnings instead of failing the build. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1902;NU1903</WarningsNotAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Pinned to the newest 17.x so the sample runs on a patched Umbraco; the package itself supports the full range. -->
+    <PackageReference Include="Umbraco.Cms" VersionOverride="17.7.1" />
+    <ProjectReference Include="../../src/TheBuilder.DeliveryApiOidc/TheBuilder.DeliveryApiOidc.csproj" />
+  </ItemGroup>
+</Project>
