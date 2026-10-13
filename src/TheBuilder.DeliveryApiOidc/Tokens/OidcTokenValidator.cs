@@ -10,6 +10,15 @@ internal sealed class OidcTokenValidator(
     IIssuerConfigurationProvider configurationProvider,
     TimeProvider timeProvider) : IOidcTokenValidator
 {
+    private const int MaxLoggedIssuerLength = 200;
+
+    private static readonly string[] AsymmetricAlgorithms =
+    [
+        SecurityAlgorithms.RsaSha256, SecurityAlgorithms.RsaSha384, SecurityAlgorithms.RsaSha512,
+        SecurityAlgorithms.RsaSsaPssSha256, SecurityAlgorithms.RsaSsaPssSha384, SecurityAlgorithms.RsaSsaPssSha512,
+        SecurityAlgorithms.EcdsaSha256, SecurityAlgorithms.EcdsaSha384, SecurityAlgorithms.EcdsaSha512,
+    ];
+
     private readonly JsonWebTokenHandler _handler = new() { MapInboundClaims = false };
 
     public async Task<OidcValidationResult> ValidateAsync(string token, CancellationToken cancellationToken)
@@ -32,7 +41,9 @@ internal sealed class OidcTokenValidator(
             .Where(issuer => string.Equals(issuer.Issuer, unverifiedIssuer, StringComparison.Ordinal))
             .ToList();
         if (candidates.Count == 0)
-            return OidcValidationResult.Invalid($"The issuer \"{unverifiedIssuer}\" is not trusted.");
+            // Anyone can put anything in an unverified token, so only a bounded piece of it reaches the log.
+            return OidcValidationResult.Invalid(
+                $"The issuer \"{unverifiedIssuer[..Math.Min(unverifiedIssuer.Length, MaxLoggedIssuerLength)]}\" is not trusted.");
 
         // Several entries can share an issuer, such as two Vercel teams in global issuer mode, or two GitHub
         // repositories. Their keys are the same, so the signature is checked once against every audience they
@@ -44,6 +55,9 @@ internal sealed class OidcTokenValidator(
             {
                 ValidIssuer = unverifiedIssuer,
                 ValidAudiences = group.Select(issuer => issuer.Audience).ToList(),
+                // Workload tokens are signed with the issuer's private key. Refusing every other algorithm
+                // keeps a token from choosing how it is checked.
+                ValidAlgorithms = AsymmetricAlgorithms,
                 ValidateIssuerSigningKey = true,
                 RequireSignedTokens = true,
                 RequireExpirationTime = true,

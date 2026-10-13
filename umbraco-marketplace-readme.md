@@ -1,0 +1,31 @@
+# Delivery API OIDC
+
+Let your frontends read a private Umbraco Content Delivery API with the OIDC token their platform already
+gives them, instead of a shared API key.
+
+A private Delivery API is protected by one API key. Every frontend gets the same key, it lives in
+environment variables forever, and rotating it means touching every project at once. Vercel, GitHub
+Actions, Google Cloud, AWS and other platforms give each workload a short-lived, signed token that says
+who it is. This package lets Umbraco accept those tokens.
+
+## Key features
+
+- No shared secret: tokens are signed by the platform and expire on their own.
+- Scoped to exactly who you trust: specific Vercel projects and environments, GitHub repositories and
+  branches, or any OIDC issuer with the claims you require.
+- Presets for Vercel and GitHub Actions, and a generic setup for Google Cloud, AWS, Azure and GitLab.
+- Drop-in: public access, media access and the existing API key keep working, so frontends can move over
+  one at a time.
+- Grants preview access to draft content, as the API key does, unless you turn it off per issuer.
+
+## Install
+
+```sh
+dotnet add package TheBuilder.DeliveryApiOidc
+```
+
+The package supports Umbraco CMS 17.1 through 18.x on .NET 10. It has no backoffice UI; you configure the
+trusted issuers in `appsettings.json`.
+
+[Read the documentation](https://github.com/thebuilder/umbraco-delivery-api-oidc#readme) for setup on each
+platform.

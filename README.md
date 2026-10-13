@@ -20,12 +20,12 @@ The package requires Umbraco 17 or 18.
 
 | Platform | How the frontend gets a token | Setup |
 | --- | --- | --- |
-| Vercel functions and builds | `getVercelOidcToken()` from `@vercel/oidc` | `Vercel` preset |
-| GitHub Actions | `core.getIDToken(audience)` | `GitHubActions` preset |
-| Google Cloud Run and Functions | The metadata server, with your audience | Custom issuer |
-| AWS Lambda, ECS and EC2 | STS `GetWebIdentityToken` (IAM outbound identity federation) | Custom issuer |
-| Azure | A managed identity token from Entra ID | Custom issuer |
-| GitLab CI | `id_tokens` in `.gitlab-ci.yml` | Custom issuer |
+| [Vercel](https://vercel.com/docs/oidc) functions and builds | `getVercelOidcToken()` from `@vercel/oidc` | [`Vercel` preset](#vercel) |
+| [GitHub Actions](https://docs.github.com/en/actions/concepts/security/openid-connect) | `core.getIDToken(audience)` | [`GitHubActions` preset](#github-actions) |
+| [Google Cloud](https://docs.cloud.google.com/docs/authentication/get-id-token) Run, Functions and GKE | The metadata server, with your audience | [Custom issuer](#google-cloud) |
+| [AWS](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_outbound.html) Lambda, ECS and EC2 | STS `GetWebIdentityToken` (IAM outbound identity federation) | [Custom issuer](#aws) |
+| [GitLab CI](https://docs.gitlab.com/ci/secrets/id_token_authentication/) | `id_tokens` in `.gitlab-ci.yml` | [Custom issuer](#gitlab-ci) |
+| [Azure](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/how-to-use-vm-token) | A managed identity token from Entra ID | [Custom issuer](#any-other-issuer) |
 
 Cloudflare Workers and Netlify Functions have no built-in workload token, so frontends there keep using
 the API key.
@@ -95,6 +95,9 @@ match an entry. Every entry accepts these settings:
 
 ### Vercel
 
+See Vercel's [OIDC federation docs](https://vercel.com/docs/oidc) for how tokens are issued and what
+they contain.
+
 ```json
 { "Preset": "Vercel", "Team": "acme", "Projects": ["acme-web", "prj_123"] }
 ```
@@ -107,6 +110,9 @@ match an entry. Every entry accepts these settings:
 - Builds get a token too, through `VERCEL_OIDC_TOKEN`, so static generation works.
 
 ### GitHub Actions
+
+See GitHub's [OpenID Connect docs](https://docs.github.com/en/actions/concepts/security/openid-connect)
+for how workflows request tokens and what they contain.
 
 ```json
 {
@@ -127,6 +133,18 @@ const token = await core.getIDToken('https://cms.example.com');
 
 ### Any other issuer
 
+`Issuer`, `Audience` and at least one required claim are needed. Without a claim, any workload the
+issuer serves could get in. With Google, for example, that would be anyone with a Google account.
+Required claims are compared with top-level string claims in the token, exactly.
+
+Decode a real token from your workload, for example with [jwt.io](https://jwt.io), before you write the
+entry: it shows the exact `iss`, `aud` and claims to match.
+
+#### Google Cloud
+
+Request an [ID token](https://docs.cloud.google.com/docs/authentication/get-id-token) from the metadata
+server with your audience, and require the service account's email:
+
 ```json
 {
   "Name": "renderer",
@@ -136,8 +154,35 @@ const token = await core.getIDToken('https://cms.example.com');
 }
 ```
 
-`Issuer`, `Audience` and at least one required claim are needed. Without a claim, any workload the
-issuer serves could get in. With Google, for example, that would be anyone with a Google account.
+#### AWS
+
+Request a token with [`GetWebIdentityToken`](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_outbound.html)
+after enabling outbound identity federation on the account. The issuer is specific to your account, and
+`sub` is the [ARN of the role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_outbound_token_claims.html)
+that asked for the token:
+
+```json
+{
+  "Name": "lambda-renderer",
+  "Issuer": "https://abc123-def456-ghi789-jkl012.tokens.sts.global.api.aws",
+  "Audience": "https://cms.example.com",
+  "RequiredClaims": { "sub": ["arn:aws:iam::123456789012:role/Renderer"] }
+}
+```
+
+#### GitLab CI
+
+Declare an [ID token](https://docs.gitlab.com/ci/secrets/id_token_authentication/) in the job with
+your audience, and require the project path:
+
+```json
+{
+  "Name": "gitlab-build",
+  "Issuer": "https://gitlab.com",
+  "Audience": "https://cms.example.com",
+  "RequiredClaims": { "project_path": ["acme/site"] }
+}
+```
 
 ### Other settings
 
@@ -175,6 +220,9 @@ dotnet test TheBuilder.DeliveryApiOidc.slnx
 
 `samples/TheBuilder.DeliveryApiOidc.Example` is an Umbraco site that references the package. It installs
 itself unattended into SQLite on first run.
+
+[RELEASE.md](RELEASE.md) describes how a GitHub Release publishes the package to nuget.org and the
+Umbraco Marketplace.
 
 ## License
 

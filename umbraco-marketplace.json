@@ -1,0 +1,30 @@
+{
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "AuthorDetails": {
+    "Name": "Daniel Schmidt",
+    "Description": "Independent developer building focused Umbraco packages.",
+    "Url": "https://github.com/thebuilder",
+    "ImageUrl": "https://github.com/thebuilder.png",
+    "SyncContributorsFromRepository": true
+  },
+  "Category": "Headless",
+  "AlternateCategory": "Developer Tools",
+  "Title": "Delivery API OIDC",
+  "Description": "Let Vercel, GitHub Actions, Google Cloud, AWS and other workloads read a private Content Delivery API with their short-lived OIDC token, instead of a shared API key.",
+  "DocumentationUrl": "https://github.com/thebuilder/umbraco-delivery-api-oidc#readme",
+  "IssueTrackerUrl": "https://github.com/thebuilder/umbraco-delivery-api-oidc/issues",
+  "LicenseTypes": [
+    "Free"
+  ],
+  "PackageType": "Package",
+  "Tags": [
+    "Delivery API",
+    "headless",
+    "OIDC",
+    "security",
+    "Vercel",
+    "GitHub Actions",
+    "workload identity",
+    "API key"
+  ]
+}

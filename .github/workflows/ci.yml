@@ -12,55 +12,6 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  DOTNET_NOLOGO: true
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  DOTNET_CLI_TELEMETRY_OPTOUT: true
-
 jobs:
-  dotnet:
-    name: .NET (Umbraco ${{ matrix.umbraco-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # The oldest supported release, and the newest of each major, since the package declares a range.
-        umbraco-version:
-          - 17.1.0
-          - 17.*
-          - 18.*
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-
-      - name: Test
-        run: >-
-          dotnet test tests/TheBuilder.DeliveryApiOidc.Tests/TheBuilder.DeliveryApiOidc.Tests.csproj
-          --configuration Release
-          '-p:UmbracoVersion=${{ matrix.umbraco-version }}'
-
-  package:
-    name: Sample and package
-    runs-on: ubuntu-latest
-    needs: dotnet
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-
-      - name: Build sample
-        run: dotnet build samples/TheBuilder.DeliveryApiOidc.Example/TheBuilder.DeliveryApiOidc.Example.csproj --configuration Release
-
-      - name: Pack
-        run: dotnet pack src/TheBuilder.DeliveryApiOidc/TheBuilder.DeliveryApiOidc.csproj --configuration Release --output artifacts
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: nupkg
-          path: artifacts/*.nupkg
-          if-no-files-found: error
+  verify:
+    uses: ./.github/workflows/verify.yml
