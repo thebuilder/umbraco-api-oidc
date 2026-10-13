@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/TheBuilder.VercelOidc/TheBuilder.VercelOidc.csproj" />
+  <Project Path="samples/TheBuilder.VercelOidc.Example/TheBuilder.VercelOidc.Example.csproj" />
+  <Project Path="tests/TheBuilder.VercelOidc.Tests/TheBuilder.VercelOidc.Tests.csproj" />
+</Solution>

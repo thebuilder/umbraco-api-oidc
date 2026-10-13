@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
+    <!-- The package supports a range; CI overrides this to test the oldest and newest ends of it. -->
+    <UmbracoVersion Condition="'$(UmbracoVersion)' == ''">[17.1.0,19.0.0)</UmbracoVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Umbraco.Cms" Version="$(UmbracoVersion)" />
+    <PackageVersion Include="Umbraco.Cms.Web.Common" Version="$(UmbracoVersion)" />
+    <PackageVersion Include="MailKit" Version="4.17.0" />
+    <PackageVersion Include="MessagePack" Version="3.1.8" />
+    <PackageVersion Include="MimeKit" Version="4.17.0" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
+    <PackageVersion Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.23.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
+    <PackageVersion Include="xunit.v3" Version="3.2.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+</Project>
