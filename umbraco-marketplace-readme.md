@@ -1,7 +1,7 @@
-# Delivery API OIDC
+# API OIDC
 
-Let your frontends read a private Umbraco Content Delivery API with the OIDC token their platform already
-gives them, instead of a shared API key.
+Let your frontends call a private Umbraco Content Delivery API, and your own API endpoints, with the OIDC
+token their platform already gives them, instead of a shared API key.
 
 A private Delivery API is protected by one API key. Every frontend gets the same key, it lives in
 environment variables forever, and rotating it means touching every project at once. Vercel, GitHub
@@ -22,11 +22,11 @@ who it is. This package lets Umbraco accept those tokens.
 ## Install
 
 ```sh
-dotnet add package TheBuilder.DeliveryApiOidc
+dotnet add package TheBuilder.ApiOidc
 ```
 
 The package supports Umbraco CMS 17.1 through 18.x on .NET 10. It has no backoffice UI; you configure the
 trusted issuers in `appsettings.json`.
 
-[Read the documentation](https://github.com/thebuilder/umbraco-delivery-api-oidc#readme) for setup on each
+[Read the documentation](https://github.com/thebuilder/umbraco-api-oidc#readme) for setup on each
 platform.

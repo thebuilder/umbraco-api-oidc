@@ -9,10 +9,10 @@
   },
   "Category": "Headless",
   "AlternateCategory": "Developer Tools",
-  "Title": "Delivery API OIDC",
-  "Description": "Let Vercel, GitHub Actions, Google Cloud, AWS and other workloads read a private Content Delivery API with their short-lived OIDC token, instead of a shared API key.",
-  "DocumentationUrl": "https://github.com/thebuilder/umbraco-delivery-api-oidc#readme",
-  "IssueTrackerUrl": "https://github.com/thebuilder/umbraco-delivery-api-oidc/issues",
+  "Title": "API OIDC",
+  "Description": "Let Vercel, GitHub Actions, Google Cloud, AWS and other workloads call a private Content Delivery API and your own API endpoints with their short-lived OIDC token, instead of a shared API key.",
+  "DocumentationUrl": "https://github.com/thebuilder/umbraco-api-oidc#readme",
+  "IssueTrackerUrl": "https://github.com/thebuilder/umbraco-api-oidc/issues",
   "LicenseTypes": [
     "Free"
   ],
@@ -25,6 +25,7 @@
     "Vercel",
     "GitHub Actions",
     "workload identity",
-    "API key"
+    "API key",
+    "authentication"
   ]
 }

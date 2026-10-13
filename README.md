@@ -1,12 +1,13 @@
-# TheBuilder.DeliveryApiOidc
+# TheBuilder.ApiOidc
 
-Let your frontends read the Umbraco Delivery API with the OIDC token their platform already gives them,
-instead of a shared API key.
+Let your frontends call the Umbraco Delivery API, and your own API endpoints, with the OIDC token their
+platform already gives them, instead of a shared API key.
 
 Umbraco protects a private Delivery API with one API key. Every frontend gets the same key, it lives in
 environment variables forever, and rotating it means touching every project at once. Most hosting and CI
 platforms now give each workload a short-lived, signed token that says who it is. This package teaches
-Umbraco to accept those tokens.
+Umbraco to accept those tokens, on the Delivery API and on any endpoint you
+[protect with `[RequireOidcToken]`](#protecting-your-own-endpoints).
 
 - **No shared secret.** Tokens are signed by the platform and expire on their own. There is nothing to rotate.
 - **Scoped to exactly who you trust.** You list the Vercel projects, GitHub repositories or other workloads
@@ -35,7 +36,7 @@ the API key.
 1. Install the package in your Umbraco site:
 
    ```sh
-   dotnet add package TheBuilder.DeliveryApiOidc
+   dotnet add package TheBuilder.ApiOidc
    ```
 
 2. Make sure your `Program.cs` calls `AddDeliveryApi()` before `AddComposers()`, as Umbraco's template
@@ -54,7 +55,7 @@ the API key.
        }
      },
      "TheBuilder": {
-       "DeliveryApiOidc": {
+       "ApiOidc": {
          "Issuers": [
            {
              "Preset": "Vercel",
@@ -85,7 +86,7 @@ The same tokens can protect your own API controllers and minimal APIs, such as a
 your frontend should call. Add `[RequireOidcToken]` to a controller or action:
 
 ```csharp
-using TheBuilder.DeliveryApiOidc.Authentication;
+using TheBuilder.ApiOidc.Authentication;
 
 [ApiController]
 [Route("api/search")]
@@ -254,11 +255,11 @@ endpoints that require it.
 ## Development
 
 ```sh
-dotnet build TheBuilder.DeliveryApiOidc.slnx
-dotnet test TheBuilder.DeliveryApiOidc.slnx
+dotnet build TheBuilder.ApiOidc.slnx
+dotnet test TheBuilder.ApiOidc.slnx
 ```
 
-`samples/TheBuilder.DeliveryApiOidc.Example` is an Umbraco site that references the package. It installs
+`samples/TheBuilder.ApiOidc.Example` is an Umbraco site that references the package. It installs
 itself unattended into SQLite on first run.
 
 [RELEASE.md](RELEASE.md) describes how a GitHub Release publishes the package to nuget.org and the
