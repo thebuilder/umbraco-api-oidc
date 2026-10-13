@@ -105,8 +105,10 @@ app.MapGet("/api/search", (string query) => /* ... */).RequireOidcToken();
 ```
 
 A request without a valid token gets a `401`. The token goes in the same header and is checked against the
-same `Issuers` as on the Delivery API. To accept only some of them, pass their `Name`s, for example
-`[RequireOidcToken("Vercel")]`. A token from another trusted issuer then gets a `403`.
+same `Issuers` as on the Delivery API. To accept only some of them, pass their `Name`s exactly as
+configured, for example `[RequireOidcToken("Vercel")]`. A token from another trusted issuer then gets a `403`.
+Only a token checked by this package satisfies the attribute, even when the endpoint also accepts a cookie
+or another scheme.
 
 Inside the endpoint, `User` carries the token's claims under their own names, such as `sub`, `project` or
 `repository`, plus `oidc_issuer_name` with the `Name` of the issuer that accepted it.

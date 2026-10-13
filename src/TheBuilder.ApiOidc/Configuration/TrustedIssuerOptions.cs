@@ -1,7 +1,7 @@
 namespace TheBuilder.ApiOidc.Configuration;
 
 /// <summary>
-///     One source of tokens the Delivery API accepts. Pick a <see cref="Preset" /> for Vercel or GitHub Actions,
+///     One source of tokens the package accepts. Pick a <see cref="Preset" /> for Vercel or GitHub Actions,
 ///     or describe any other issuer with <see cref="Issuer" />, <see cref="Audience" /> and <see cref="RequiredClaims" />.
 /// </summary>
 public sealed class TrustedIssuerOptions

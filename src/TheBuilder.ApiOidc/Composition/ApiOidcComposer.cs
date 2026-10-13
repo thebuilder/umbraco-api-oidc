@@ -57,6 +57,7 @@ public sealed class ApiOidcComposer : IComposer
             .AddScheme<AuthenticationSchemeOptions, OidcAuthenticationHandler>(OidcAuthenticationDefaults.AuthenticationScheme, null);
         services.AddAuthorization(authorization => authorization.AddPolicy(
             OidcAuthenticationDefaults.Policy,
-            policy => policy.AddAuthenticationSchemes(OidcAuthenticationDefaults.AuthenticationScheme).RequireAuthenticatedUser()));
+            policy => policy.AddAuthenticationSchemes(OidcAuthenticationDefaults.AuthenticationScheme)
+                .AddRequirements(new OidcTokenRequirement([]))));
     }
 }

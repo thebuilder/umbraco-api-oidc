@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace TheBuilder.ApiOidc.Authentication;
 
@@ -17,7 +16,8 @@ public sealed class RequireOidcTokenAttribute : AuthorizeAttribute, IAuthorizati
     ///     Requires a valid token.
     /// </summary>
     /// <param name="issuers">
-    ///     The <c>Name</c>s of the trusted issuers to accept. Leave it empty to accept any of them.
+    ///     The <c>Name</c>s of the trusted issuers to accept, exactly as configured. Leave it empty to accept any
+    ///     of them.
     /// </param>
     public RequireOidcTokenAttribute(params string[] issuers)
     {
@@ -29,10 +29,5 @@ public sealed class RequireOidcTokenAttribute : AuthorizeAttribute, IAuthorizati
     public IReadOnlyList<string> Issuers { get; }
 
     /// <inheritdoc />
-    public IEnumerable<IAuthorizationRequirement> GetRequirements()
-    {
-        yield return new DenyAnonymousAuthorizationRequirement();
-        if (Issuers.Count > 0)
-            yield return new ClaimsAuthorizationRequirement(OidcAuthenticationDefaults.IssuerNameClaimType, Issuers);
-    }
+    public IEnumerable<IAuthorizationRequirement> GetRequirements() => [new OidcTokenRequirement(Issuers)];
 }

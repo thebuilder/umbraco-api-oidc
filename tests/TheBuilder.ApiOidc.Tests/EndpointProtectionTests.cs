@@ -1,4 +1,8 @@
 using System.Net;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -6,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TheBuilder.ApiOidc.Authentication;
 using TheBuilder.ApiOidc.Composition;
 using TheBuilder.ApiOidc.Tokens;
@@ -35,6 +41,8 @@ public sealed class EndpointProtectionTests : IAsyncLifetime
         builder.Services.AddSingleton<TimeProvider>(new FixedTimeProvider(FakeIssuers.Now));
         ApiOidcComposer.AddServices(builder.Services, builder.Configuration);
         builder.Services.AddSingleton<IIssuerConfigurationProvider>(_issuers);
+        builder.Services.AddAuthentication()
+            .AddScheme<AuthenticationSchemeOptions, AlwaysSignedInHandler>(AlwaysSignedInHandler.SchemeName, null);
         builder.Services.AddControllers().AddApplicationPart(typeof(EndpointProtectionTests).Assembly);
 
         _app = builder.Build();
@@ -45,6 +53,9 @@ public sealed class EndpointProtectionTests : IAsyncLifetime
             .RequireOidcToken();
         _app.MapGet("/deploy-only", () => "deploy").RequireOidcToken("deploy");
         _app.MapGet("/policy", () => "policy").RequireAuthorization(OidcAuthenticationDefaults.Policy);
+        _app.MapGet("/stacked", () => "stacked")
+            .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = AlwaysSignedInHandler.SchemeName })
+            .RequireOidcToken("deploy");
         _app.MapControllers();
         await _app.StartAsync(TestContext.Current.CancellationToken);
         _client = _app.GetTestClient();
@@ -124,6 +135,30 @@ public sealed class EndpointProtectionTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Ignores_an_issuer_name_claim_inside_the_token()
+    {
+        var token = _issuers.Issue("https://oidc.vercel.com/acme", "https://vercel.com/acme", new Dictionary<string, object>
+        {
+            ["sub"] = "owner:acme:project:acme-web:environment:production",
+            ["owner"] = "acme",
+            ["project"] = "acme-web",
+            ["environment"] = "production",
+            [OidcAuthenticationDefaults.IssuerNameClaimType] = "deploy",
+        });
+
+        var response = await Get("/deploy-only", token);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Is_not_satisfied_by_another_scheme_on_the_same_endpoint()
+    {
+        Assert.Equal(HttpStatusCode.Forbidden, (await Get("/stacked")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await Get("/stacked", _issuers.GitHubToken())).StatusCode);
+    }
+
+    [Fact]
     public async Task Leaves_endpoints_that_do_not_opt_in_alone()
     {
         var response = await Get("/open", "not.a.token");
@@ -139,4 +174,19 @@ public sealed class ProtectedTestController : ControllerBase
     [HttpGet("search")]
     [RequireOidcToken("Vercel")]
     public string Search() => User.FindFirst(OidcAuthenticationDefaults.IssuerNameClaimType)!.Value;
+}
+
+/// <summary>Stands in for a cookie or other scheme that signs everyone in, with a claim that looks like ours.</summary>
+internal sealed class AlwaysSignedInHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+{
+    public const string SchemeName = "AlwaysSignedIn";
+
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        var identity = new ClaimsIdentity([new Claim(OidcAuthenticationDefaults.IssuerNameClaimType, "deploy")], SchemeName);
+        return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(identity), SchemeName)));
+    }
 }

@@ -35,15 +35,19 @@ internal sealed class OidcAuthenticationHandler(
 
             var result = await validator.ValidateAsync(token, Context.RequestAborted);
             if (result.Identity is null)
-                // The handler logs the reason. It never reaches the caller, who only gets a 401.
+            {
+                // The reason is for the log only. The caller gets a 401 and nothing more.
+                Logger.LogWarning("Refused an OIDC token on {Path}: {Reason}", Request.Path, result.Failure);
                 return AuthenticateResult.Fail(result.Failure ?? "The token is not valid.");
+            }
             identity = result.Identity;
         }
 
-        var claims = new List<Claim>(identity.Claims)
-        {
-            new(OidcAuthenticationDefaults.IssuerNameClaimType, identity.IssuerName),
-        };
+        // A token that carries its own issuer name claim must not choose which issuer it counts as.
+        var claims = identity.Claims
+            .Where(claim => claim.Type != OidcAuthenticationDefaults.IssuerNameClaimType)
+            .Append(new Claim(OidcAuthenticationDefaults.IssuerNameClaimType, identity.IssuerName))
+            .ToList();
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, Scheme.Name, "sub", null));
         return AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name));
     }
