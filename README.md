@@ -54,16 +54,14 @@ the API key.
          }
        }
      },
-     "TheBuilder": {
-       "ApiOidc": {
-         "Issuers": [
-           {
-             "Preset": "Vercel",
-             "Team": "acme",
-             "Projects": ["acme-web"]
-           }
-         ]
-       }
+     "ApiOidc": {
+       "Issuers": [
+         {
+           "Preset": "Vercel",
+           "Team": "acme",
+           "Projects": ["acme-web"]
+         }
+       ]
      }
    }
    ```

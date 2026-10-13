@@ -30,13 +30,13 @@ public sealed class EndpointProtectionTests : IAsyncLifetime
         builder.WebHost.UseTestServer();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["TheBuilder:ApiOidc:Issuers:0:Preset"] = "Vercel",
-            ["TheBuilder:ApiOidc:Issuers:0:Team"] = "acme",
-            ["TheBuilder:ApiOidc:Issuers:0:Projects:0"] = "acme-web",
-            ["TheBuilder:ApiOidc:Issuers:1:Name"] = "deploy",
-            ["TheBuilder:ApiOidc:Issuers:1:Preset"] = "GitHubActions",
-            ["TheBuilder:ApiOidc:Issuers:1:Audience"] = "https://cms.example.com",
-            ["TheBuilder:ApiOidc:Issuers:1:Repositories:0"] = "acme/site",
+            ["ApiOidc:Issuers:0:Preset"] = "Vercel",
+            ["ApiOidc:Issuers:0:Team"] = "acme",
+            ["ApiOidc:Issuers:0:Projects:0"] = "acme-web",
+            ["ApiOidc:Issuers:1:Name"] = "deploy",
+            ["ApiOidc:Issuers:1:Preset"] = "GitHubActions",
+            ["ApiOidc:Issuers:1:Audience"] = "https://cms.example.com",
+            ["ApiOidc:Issuers:1:Repositories:0"] = "acme/site",
         });
         builder.Services.AddSingleton<TimeProvider>(new FixedTimeProvider(FakeIssuers.Now));
         ApiOidcComposer.AddServices(builder.Services, builder.Configuration);
