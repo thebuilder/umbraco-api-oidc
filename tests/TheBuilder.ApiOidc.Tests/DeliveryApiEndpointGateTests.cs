@@ -126,6 +126,17 @@ public sealed class DeliveryApiEndpointGateTests
     }
 
     [Fact]
+    public async Task Lets_cors_preflights_through()
+    {
+        _context.Request.Method = HttpMethods.Options;
+        _context.Request.Headers["Access-Control-Request-Method"] = "GET";
+
+        await Send();
+
+        Assert.True(_nextCalled);
+    }
+
+    [Fact]
     public async Task Ignores_endpoints_outside_the_delivery_api()
     {
         await Send("/api/search");

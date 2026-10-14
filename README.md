@@ -83,13 +83,13 @@ Umbraco only checks access on its own Delivery API controllers. An endpoint that
 under `/umbraco/delivery/api`, such as a dictionary endpoint, would otherwise be open even when the Delivery
 API is private.
 
-With this package installed, those endpoints get the same check as Umbraco's content endpoints: they are
+Once you configure an issuer, those endpoints get the same check as Umbraco's content endpoints: they are
 served when `PublicAccess` is on, or the request carries a valid API key or a trusted OIDC token, and get a
 `401` otherwise. You don't add anything to the controller.
 
 - Umbraco's own Delivery API endpoints are left to Umbraco, so preview and member authorization work as
   before.
-- An endpoint marked `[AllowAnonymous]` stays open.
+- An endpoint marked `[AllowAnonymous]` stays open, and so do CORS preflight requests.
 - To turn this off, set `"ProtectCustomDeliveryApiEndpoints": false` in the `ApiOidc` section.
 - At startup, the log lists every endpoint that gets the check, such as
   `GET /umbraco/delivery/api/v1/dictionary`.
