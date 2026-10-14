@@ -182,9 +182,7 @@ for how workflows request tokens and what they contain.
 {
   "Preset": "GitHubActions",
   "Audience": "https://cms.example.com",
-  "Owner": "acme",
-  "Repositories": ["acme/site"],
-  "Refs": ["refs/heads/main"]
+  "Owner": "acme"
 }
 ```
 
@@ -194,9 +192,13 @@ Request the token with the same audience, in a job with `permissions: id-token: 
 const token = await core.getIDToken('https://cms.example.com');
 ```
 
-`Audience` and `Owner` are required. `Owner` is the user or organization that owns the repositories, and
-tokens from any other owner are refused. Leave `Repositories` out to accept every repository the owner has,
-or list some as `owner/repo`. `Refs` and `Environments` are optional filters.
+`Audience` and `Owner` are required. `Owner` is your GitHub organization, or a user, and tokens from any
+other owner are refused. That accepts every repository the owner has. To narrow it down, add any of these
+filters:
+
+- `Repositories`, as `owner/repo`, such as `["acme/site"]`.
+- `Refs`, such as `["refs/heads/main"]`.
+- `Environments`, the GitHub deployment environments allowed in.
 
 ### Any other issuer
 
