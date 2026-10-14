@@ -67,7 +67,7 @@ const features = [
     <LandingHero
       title="Your platform's token,"
       accent="instead of a shared API key."
-      description="Vercel, GitHub Actions, Google Cloud, AWS and GitLab give each workload a short-lived, signed token. Umbraco accepts it on the Delivery API and on the endpoints you choose."
+      description=""
       compatibility="Umbraco CMS 17.1 or later · .NET 10"
     >
       <HeroParticles slot="background" logo="/logo-mark.svg" />
@@ -79,6 +79,7 @@ const features = [
     </LandingHero>
 
     <section class="shell trust reveal">
+      <p class="trust__lede">Vercel, GitHub Actions, Google Cloud, AWS and GitLab give each workload a short-lived, signed token. Umbraco accepts it on the Delivery API and on the endpoints you choose.</p>
       <p><strong>A token only adds a way in.</strong> A request without one, or with a refused one, gets the same answer from Umbraco as it does today.</p>
     </section>
 
@@ -136,6 +137,15 @@ const features = [
       currentPackageId={apiOidcPackage.id}
     />
   </LandingRoot>
+
+  <script>
+    // The fallback for browsers without scroll-driven animations; see the end of home.css.
+    if (!CSS.supports("animation-timeline: scroll()")) {
+      const update = () => document.documentElement.toggleAttribute("data-scrolled", window.scrollY > 0);
+      update();
+      window.addEventListener("scroll", update, { passive: true });
+    }
+  </script>
 
   <footer class="home-footer" slot="footer">
     <div class="shell home-footer__inner">

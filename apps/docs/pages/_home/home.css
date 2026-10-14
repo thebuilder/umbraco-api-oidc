@@ -17,11 +17,15 @@
 
 .home .button { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; padding-inline: 1.25rem; border: 1px solid var(--line); border-radius: var(--blume-radius); color: var(--ink); font-weight: 600; text-decoration: none; }
 .home .button:hover { border-color: var(--purple); }
+.home .button--secondary { border-color: color-mix(in oklab, var(--ink) 18%, transparent); background: color-mix(in oklab, var(--blume-background) 55%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 .home .button--primary { border-color: var(--purple); background: var(--purple); color: #fff; box-shadow: 0 .625rem 1.9rem rgba(91,124,245,.23); }
 .home .button--primary:hover { background: #4a6ae6; color: #fff; }
 .home .trust { padding-block: 1.75rem; border-bottom: 1px solid var(--line); color: var(--muted); text-align: center; }
 .home .trust p { margin: 0; }
 .home .trust strong { color: var(--ink); }
+.home .trust .trust__lede { max-width: 44rem; margin: 0 auto .75rem; color: var(--ink); font-size: clamp(1.05rem, 1.5vw, 1.2rem); line-height: 1.6; }
+/* The description sits under the hero instead, so the hero's own paragraph stays empty. */
+.home .udocs-hero__description:empty { display: none; }
 
 .home .section { padding-block: 5rem; }
 .home .section-heading { max-width: 40rem; }
@@ -90,3 +94,13 @@
 
 /* The flow section links on to setting up an issuer. */
 .home .flow__copy > .text-link { display: inline-block; margin-top: .75rem; }
+
+/* The particles sit behind the hero text, so its grey line needs more contrast than on a plain background. */
+.home .udocs-hero__compatibility { color: color-mix(in oklab, var(--ink) 82%, transparent); }
+
+/* The shared styles clear Blume's header over the particles with a scroll-driven animation. Where that
+   isn't supported, such as Firefox, the script on the page sets data-scrolled instead. */
+@supports not (animation-timeline: scroll()) {
+  html[data-udocs-particles-header]:not([data-scrolled]) [data-blume-header] { background-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  [data-blume-header] { transition: background-color .2s ease, backdrop-filter .2s ease; }
+}
