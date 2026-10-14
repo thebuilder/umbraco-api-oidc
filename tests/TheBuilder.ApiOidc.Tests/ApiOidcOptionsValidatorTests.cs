@@ -31,10 +31,19 @@ public sealed class ApiOidcOptionsValidatorTests
     }
 
     [Fact]
-    public void Requires_a_github_repository()
+    public void Requires_a_github_owner()
     {
         var github = FakeIssuers.GitHub();
-        github.Repositories = [];
+        github.Owner = null;
+
+        Assert.False(IsValid(github));
+    }
+
+    [Fact]
+    public void Refuses_a_github_repository_of_another_owner()
+    {
+        var github = FakeIssuers.GitHub();
+        github.Repositories = ["acme/site", "other/site"];
 
         Assert.False(IsValid(github));
     }

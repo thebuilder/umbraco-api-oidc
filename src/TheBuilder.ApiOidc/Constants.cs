@@ -22,6 +22,7 @@ internal static class Constants
     public static class GitHubActions
     {
         public const string Issuer = "https://token.actions.githubusercontent.com";
+        public const string Owner = "repository_owner";
         public const string Repository = "repository";
         public const string Ref = "ref";
         public const string Environment = "environment";

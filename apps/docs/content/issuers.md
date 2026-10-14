@@ -39,6 +39,7 @@ See GitHub's [OpenID Connect docs](https://docs.github.com/en/actions/concepts/s
 {
   "Preset": "GitHubActions",
   "Audience": "https://cms.example.com",
+  "Owner": "acme",
   "Repositories": ["acme/site"],
   "Refs": ["refs/heads/main"]
 }
@@ -50,7 +51,7 @@ Request the token with the same audience, in a job with `permissions: id-token: 
 const token = await core.getIDToken('https://cms.example.com');
 ```
 
-`Audience` and `Repositories` are required. `Refs` and `Environments` are optional filters.
+`Audience` and `Owner` are required. `Owner` is the user or organization that owns the repositories, and tokens from any other owner are refused. Leave `Repositories` out to accept every repository the owner has, or list some as `owner/repo`. `Refs` and `Environments` are optional filters.
 
 ## Any other issuer
 

@@ -44,7 +44,13 @@ public sealed class TrustedIssuerOptions
     /// <summary>Vercel: project names or ids (<c>prj_...</c>) allowed in. Empty allows every project in the team.</summary>
     public IList<string> Projects { get; set; } = [];
 
-    /// <summary>GitHub Actions: repositories allowed in, as <c>owner/repo</c>.</summary>
+    /// <summary>GitHub Actions: the user or organization that owns the repositories, such as <c>acme</c>.</summary>
+    public string? Owner { get; set; }
+
+    /// <summary>
+    ///     GitHub Actions: repositories allowed in, as <c>owner/repo</c>. Empty allows every repository the
+    ///     <see cref="Owner" /> has.
+    /// </summary>
     public IList<string> Repositories { get; set; } = [];
 
     /// <summary>GitHub Actions: refs allowed in, such as <c>refs/heads/main</c>. Empty allows any.</summary>

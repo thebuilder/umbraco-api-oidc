@@ -58,11 +58,17 @@ internal static class TrustedIssuerResolver
                 issuer = Constants.GitHubActions.Issuer;
                 if (string.IsNullOrWhiteSpace(audience))
                     failures.Add($"{path}:Audience is required for GitHub Actions; pass the same value to core.getIDToken().");
-                if (!HasValues(options.Repositories))
-                    failures.Add($"{path}:Repositories must name at least one repository, as owner/repo.");
+                if (string.IsNullOrWhiteSpace(options.Owner) || options.Owner.Any(c => char.IsWhiteSpace(c) || c == '/'))
+                    failures.Add($"{path}:Owner must be the GitHub user or organization, such as \"acme\".");
+                else if (options.Repositories.Any(repository => !string.IsNullOrWhiteSpace(repository) &&
+                             !repository.StartsWith($"{options.Owner}/", StringComparison.OrdinalIgnoreCase)))
+                    failures.Add($"{path}:Repositories must belong to {options.Owner}, as {options.Owner}/repo.");
 
-                // GitHub treats repository names case-insensitively, so the allow-list does too.
-                rules.Add(Rule([Constants.GitHubActions.Repository], options.Repositories, StringComparison.OrdinalIgnoreCase));
+                // Every repository on GitHub shares the issuer, so the owner is what keeps everyone else out.
+                // GitHub treats owner and repository names case-insensitively, so the allow-lists do too.
+                rules.Add(Rule([Constants.GitHubActions.Owner], [options.Owner ?? ""], StringComparison.OrdinalIgnoreCase));
+                if (HasValues(options.Repositories))
+                    rules.Add(Rule([Constants.GitHubActions.Repository], options.Repositories, StringComparison.OrdinalIgnoreCase));
                 if (HasValues(options.Refs))
                     rules.Add(Rule([Constants.GitHubActions.Ref], options.Refs, StringComparison.Ordinal));
                 if (HasValues(options.Environments))
