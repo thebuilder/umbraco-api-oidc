@@ -43,18 +43,20 @@ public sealed class OidcTokenValidatorTests
     }
 
     [Fact]
-    public async Task Accepts_vercel_development_tokens_by_default()
+    public async Task Refuses_vercel_development_tokens_by_default()
     {
-        Assert.True((await Validate(_issuers.VercelToken(environment: "development"))).IsValid);
+        Assert.True((await Validate(_issuers.VercelToken(environment: "preview"))).IsValid);
+        Assert.False((await Validate(_issuers.VercelToken(environment: "development"))).IsValid);
     }
 
     [Fact]
-    public async Task Refuses_vercel_environments_left_out_of_the_list()
+    public async Task Accepts_vercel_development_tokens_when_listed()
     {
         var vercel = FakeIssuers.Vercel();
-        vercel.Environments = ["production"];
+        vercel.Environments = ["production", "development"];
 
-        Assert.False((await Validate(_issuers.VercelToken(environment: "development"), vercel)).IsValid);
+        Assert.True((await Validate(_issuers.VercelToken(environment: "development"), vercel)).IsValid);
+        Assert.False((await Validate(_issuers.VercelToken(environment: "preview"), vercel)).IsValid);
     }
 
     [Fact]

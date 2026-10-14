@@ -26,7 +26,7 @@ See Vercel's [OIDC federation docs](https://vercel.com/docs/oidc) for how tokens
 
 - `Team` is your team slug, and the only required setting. Tokens from any other team are refused.
 - `Projects` limits access to some of the team's projects, by name or id, such as `["acme-web", "prj_123"]`. Leave it out to accept every project in the team.
-- `Environments` defaults to `production`, `preview` and `development`. The `development` token is the one `vercel env pull` writes for local work, and anyone on the team can pull it. To keep local machines out, set `"Environments": ["production", "preview"]`.
+- `Environments` defaults to `production` and `preview`. To let local machines in as well, add `development`: `"Environments": ["production", "preview", "development"]`. The `development` token is the one `vercel env pull` writes for local work, and anyone on the team can pull it.
 - `IssuerMode` is `Team` (the default) or `Global`, matching your team's OIDC settings on Vercel.
 - `Audience` defaults to `https://vercel.com/{team}`, which is what `getVercelOidcToken()` returns.
 - Builds get a token too, through `VERCEL_OIDC_TOKEN`, so static generation works.
