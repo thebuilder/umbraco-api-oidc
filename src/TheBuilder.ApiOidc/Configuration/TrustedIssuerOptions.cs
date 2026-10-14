@@ -6,7 +6,10 @@ namespace TheBuilder.ApiOidc.Configuration;
 /// </summary>
 public sealed class TrustedIssuerOptions
 {
-    /// <summary>A name for logs, such as <c>marketing-site</c>. Defaults to the preset or the issuer.</summary>
+    /// <summary>
+    ///     A name for logs and for <c>[RequireOidcToken(...)]</c>, such as <c>marketing-site</c>. Defaults to the
+    ///     preset or the issuer.
+    /// </summary>
     public string? Name { get; set; }
 
     /// <summary>The kind of issuer. Defaults to <see cref="IssuerPreset.Custom" />.</summary>

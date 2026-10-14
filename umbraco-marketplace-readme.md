@@ -18,6 +18,7 @@ who it is. This package lets Umbraco accept those tokens.
   one at a time.
 - Grants preview access to draft content, as the API key does, unless you turn it off per issuer.
 - Protects your own endpoints too, such as a search API, with a `[RequireOidcToken]` attribute.
+- Gives custom endpoints, such as a dictionary endpoint, the Delivery API's own access rules with `[RequireDeliveryApiAccess]`.
 
 ## Install
 

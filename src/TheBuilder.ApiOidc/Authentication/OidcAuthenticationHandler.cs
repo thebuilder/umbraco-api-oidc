@@ -11,7 +11,8 @@ namespace TheBuilder.ApiOidc.Authentication;
 
 /// <summary>
 ///     Signs in the workload behind a valid OIDC token, for endpoints that opt in with
-///     <see cref="RequireOidcTokenAttribute" /> or <see cref="OidcAuthenticationDefaults.Policy" />.
+///     <see cref="RequireOidcTokenAttribute" />, <see cref="RequireDeliveryApiAccessAttribute" /> or one of the
+///     policies in <see cref="OidcAuthenticationDefaults" />.
 /// </summary>
 internal sealed class OidcAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> schemeOptions,

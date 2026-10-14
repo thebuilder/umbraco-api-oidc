@@ -12,7 +12,8 @@ of the shared Delivery API key.
     claim rules. Add a new preset there.
   - `Tokens/` - JWT validation against each issuer's published keys, then the issuer entry's claim rules.
   - `DeliveryApi/` - the middleware that validates the token, and the `IApiAccessService` replacement.
-  - `Authentication/` - the authentication scheme, policy and `[RequireOidcToken]` for custom endpoints.
+  - `Authentication/` - the authentication scheme, policies, `[RequireOidcToken]` and
+    `[RequireDeliveryApiAccess]` for custom endpoints.
   - `Composition/` - the composer that wires it all up.
 - `tests/TheBuilder.ApiOidc.Tests/` - xunit v3. Tokens are minted locally with a throwaway RSA key.
 - `samples/TheBuilder.ApiOidc.Example/` - an Umbraco site for trying the package by hand.

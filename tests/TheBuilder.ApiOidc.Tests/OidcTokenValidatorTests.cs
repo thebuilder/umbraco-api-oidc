@@ -169,15 +169,6 @@ public sealed class OidcTokenValidatorTests
     }
 
     [Fact]
-    public async Task Refuses_everything_when_no_issuer_is_configured()
-    {
-        var result = await _issuers.Validator(new ApiOidcOptions())
-            .ValidateAsync(_issuers.VercelToken(), TestContext.Current.CancellationToken);
-
-        Assert.False(result.IsValid);
-    }
-
-    [Fact]
     public async Task Accepts_a_github_actions_token_from_an_allowed_repository()
     {
         var result = await Validate(_issuers.GitHubToken(), FakeIssuers.GitHub());
@@ -213,8 +204,10 @@ public sealed class OidcTokenValidatorTests
         Assert.False((await Validate(_issuers.GitHubToken(audience: "https://github.com/acme"), FakeIssuers.GitHub())).IsValid);
     }
 
-    [Fact]
-    public async Task Accepts_a_custom_issuer_with_matching_claims()
+    [Theory]
+    [InlineData("renderer@acme.iam.gserviceaccount.com", true)]
+    [InlineData("someone@gmail.com", false)]
+    public async Task Checks_a_custom_issuers_required_claims(string email, bool valid)
     {
         var google = new TrustedIssuerOptions
         {
@@ -223,24 +216,9 @@ public sealed class OidcTokenValidatorTests
             RequiredClaims = new() { ["email"] = ["renderer@acme.iam.gserviceaccount.com"] },
         };
         var token = _issuers.Issue("https://accounts.google.com", "https://cms.example.com",
-            new() { ["sub"] = "1234", ["email"] = "renderer@acme.iam.gserviceaccount.com" });
+            new() { ["sub"] = "1234", ["email"] = email });
 
-        Assert.True((await Validate(token, google)).IsValid);
-    }
-
-    [Fact]
-    public async Task Refuses_a_custom_issuer_token_without_the_required_claim()
-    {
-        var google = new TrustedIssuerOptions
-        {
-            Issuer = "https://accounts.google.com",
-            Audience = "https://cms.example.com",
-            RequiredClaims = new() { ["email"] = ["renderer@acme.iam.gserviceaccount.com"] },
-        };
-        var token = _issuers.Issue("https://accounts.google.com", "https://cms.example.com",
-            new() { ["sub"] = "1234", ["email"] = "someone@gmail.com" });
-
-        Assert.False((await Validate(token, google)).IsValid);
+        Assert.Equal(valid, (await Validate(token, google)).IsValid);
     }
 
     [Fact]

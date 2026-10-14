@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,9 +56,19 @@ public sealed class ApiOidcComposer : IComposer
         // and only endpoints that ask for the scheme run it.
         services.AddAuthentication()
             .AddScheme<AuthenticationSchemeOptions, OidcAuthenticationHandler>(OidcAuthenticationDefaults.AuthenticationScheme, null);
-        services.AddAuthorization(authorization => authorization.AddPolicy(
-            OidcAuthenticationDefaults.Policy,
-            policy => policy.AddAuthenticationSchemes(OidcAuthenticationDefaults.AuthenticationScheme)
-                .AddRequirements(new OidcTokenRequirement([]))));
+        services.AddTransient<IAuthorizationHandler, DeliveryApiAccessHandler>();
+        services.AddAuthorization(authorization =>
+        {
+            authorization.AddPolicy(
+                OidcAuthenticationDefaults.Policy,
+                policy => policy.AddAuthenticationSchemes(OidcAuthenticationDefaults.AuthenticationScheme)
+                    .AddRequirements(new OidcTokenRequirement([])));
+            // The OIDC scheme reads a token sent to any path, and answers a refused request with a 401 rather than
+            // the backoffice's login redirect.
+            authorization.AddPolicy(
+                OidcAuthenticationDefaults.DeliveryApiAccessPolicy,
+                policy => policy.AddAuthenticationSchemes(OidcAuthenticationDefaults.AuthenticationScheme)
+                    .AddRequirements(new DeliveryApiAccessRequirement()));
+        });
     }
 }

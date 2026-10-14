@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Builder;
 namespace TheBuilder.ApiOidc.Authentication;
 
 /// <summary>
-///     Protects minimal API endpoints with an OIDC token.
+///     Protects minimal API endpoints with an OIDC token, or with the Delivery API's access rules.
 /// </summary>
 public static class OidcEndpointConventionBuilderExtensions
 {
@@ -15,4 +15,13 @@ public static class OidcEndpointConventionBuilderExtensions
     public static TBuilder RequireOidcToken<TBuilder>(this TBuilder builder, params string[] issuers)
         where TBuilder : IEndpointConventionBuilder =>
         builder.RequireAuthorization(new RequireOidcTokenAttribute(issuers));
+
+    /// <summary>
+    ///     Requires the same access as the Delivery API's content endpoints, the same as
+    ///     <see cref="RequireDeliveryApiAccessAttribute" />.
+    /// </summary>
+    /// <param name="builder">The endpoint or group.</param>
+    public static TBuilder RequireDeliveryApiAccess<TBuilder>(this TBuilder builder)
+        where TBuilder : IEndpointConventionBuilder =>
+        builder.RequireAuthorization(new RequireDeliveryApiAccessAttribute());
 }
