@@ -17,9 +17,8 @@ who it is. This package lets Umbraco accept those tokens.
 - Drop-in: public access, media access and the existing API key keep working, so frontends can move over
   one at a time.
 - Grants preview access to draft content, as the API key does, unless you turn it off per issuer.
-- Closes the gap for custom endpoints under `/umbraco/delivery/api`, such as a dictionary endpoint: they get
-  the same access check as Umbraco's content endpoints.
 - Protects your own endpoints too, such as a search API, with a `[RequireOidcToken]` attribute.
+- Gives custom endpoints, such as a dictionary endpoint, the Delivery API's own access rules with `[RequireDeliveryApiAccess]`.
 
 ## Install
 

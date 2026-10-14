@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
+using TheBuilder.ApiOidc.Authentication;
 
 namespace TheBuilder.ApiOidc.Example.Controllers;
 
 /// <summary>
-///     A custom endpoint under the Delivery API's path. It has no access check of its own: the package applies the
-///     Delivery API's, so it needs the same API key or OIDC token as Umbraco's content endpoints.
+///     A custom endpoint beside the Delivery API. Umbraco does not check access on endpoints you add, so it asks
+///     for the Delivery API's rules: the same API key or OIDC token as Umbraco's content endpoints.
 /// </summary>
 [ApiController]
 [Route("umbraco/delivery/api/v1/dictionary")]
+[RequireDeliveryApiAccess]
 public sealed class DictionaryController : ControllerBase
 {
     [HttpGet]

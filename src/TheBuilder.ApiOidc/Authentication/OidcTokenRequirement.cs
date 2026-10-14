@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
 namespace TheBuilder.ApiOidc.Authentication;
@@ -16,13 +17,16 @@ internal sealed class OidcTokenRequirement(IReadOnlyList<string> issuers)
 
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, OidcTokenRequirement requirement)
     {
-        var accepted = context.User.Identities.Any(identity =>
-            identity.IsAuthenticated &&
-            identity.AuthenticationType == OidcAuthenticationDefaults.AuthenticationScheme &&
-            (requirement.Issuers.Count == 0 ||
-             requirement.Issuers.Contains(identity.FindFirst(OidcAuthenticationDefaults.IssuerNameClaimType)?.Value, StringComparer.Ordinal)));
-        if (accepted)
+        if (IsSignedIn(context.User, requirement.Issuers))
             context.Succeed(requirement);
         return Task.CompletedTask;
     }
+
+    /// <summary>Whether the OIDC scheme itself signed the user in, from one of the issuers when any are given.</summary>
+    public static bool IsSignedIn(ClaimsPrincipal user, IReadOnlyList<string> issuers) =>
+        user.Identities.Any(identity =>
+            identity.IsAuthenticated &&
+            identity.AuthenticationType == OidcAuthenticationDefaults.AuthenticationScheme &&
+            (issuers.Count == 0 ||
+             issuers.Contains(identity.FindFirst(OidcAuthenticationDefaults.IssuerNameClaimType)?.Value, StringComparer.Ordinal)));
 }

@@ -16,6 +16,12 @@ public static class OidcAuthenticationDefaults
     /// </summary>
     public const string Policy = "TheBuilder.Oidc";
 
+    /// <summary>
+    ///     A policy that requires the same access as the Delivery API: public access, a valid API key or a valid
+    ///     token, for <c>[Authorize(Policy = ...)]</c>.
+    /// </summary>
+    public const string DeliveryApiAccessPolicy = "TheBuilder.Oidc.DeliveryApiAccess";
+
     /// <summary>The claim that holds the <c>Name</c> of the trusted issuer that accepted the token.</summary>
     public const string IssuerNameClaimType = "oidc_issuer_name";
 }
