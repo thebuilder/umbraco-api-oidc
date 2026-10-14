@@ -77,6 +77,21 @@ the API key.
 
 5. Once no frontend sends the `Api-Key` header any more, remove `Umbraco:CMS:DeliveryApi:ApiKey`.
 
+## Custom endpoints under the Delivery API
+
+Umbraco only checks access on its own Delivery API controllers. An endpoint that a package or your site adds
+under `/umbraco/delivery/api`, such as a dictionary endpoint, would otherwise be open even when the Delivery
+API is private.
+
+With this package installed, those endpoints get the same check as Umbraco's content endpoints: they are
+served when `PublicAccess` is on, or the request carries a valid API key or a trusted OIDC token, and get a
+`401` otherwise. You don't add anything to the controller.
+
+- Umbraco's own Delivery API endpoints are left to Umbraco, so preview and member authorization work as
+  before.
+- An endpoint marked `[AllowAnonymous]` stays open.
+- Endpoints outside `/umbraco/delivery/api` are not touched. Protect those with `[RequireOidcToken]`, below.
+
 ## Protecting your own endpoints
 
 The same tokens can protect your own API controllers and minimal APIs, such as a search endpoint that only
@@ -247,6 +262,9 @@ member authorization, you can set `HeaderName` to `Authorization`.
    claims the issuer entry requires.
 2. The package replaces Umbraco's `IApiAccessService` with one that grants access when step 1 found a
    valid token, and otherwise applies Umbraco's own rules unchanged.
+3. After routing, a second middleware applies that access check to every endpoint under
+   `/umbraco/delivery/api` that does not come from Umbraco itself. See
+   [Custom endpoints under the Delivery API](#custom-endpoints-under-the-delivery-api).
 
 A refused token is logged as a warning with the reason, and the request carries on. Umbraco then
 answers it as it would any request without credentials.

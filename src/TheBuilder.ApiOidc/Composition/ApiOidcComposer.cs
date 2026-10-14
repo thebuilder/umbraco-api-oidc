@@ -49,6 +49,7 @@ public sealed class ApiOidcComposer : IComposer
             new UmbracoPipelineFilter(Constants.PackageName)
             {
                 PrePipeline = app => app.UseMiddleware<OidcMiddleware>(),
+                PostRouting = app => app.UseMiddleware<DeliveryApiEndpointGate>(),
             }));
 
         // Added beside Umbraco's own schemes, never as the default, so the backoffice and members are untouched

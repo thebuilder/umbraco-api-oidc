@@ -11,7 +11,8 @@ of the shared Delivery API key.
     `TrustedIssuerResolver`, which expands the Vercel and GitHub Actions presets into issuer, audience and
     claim rules. Add a new preset there.
   - `Tokens/` - JWT validation against each issuer's published keys, then the issuer entry's claim rules.
-  - `DeliveryApi/` - the middleware that validates the token, and the `IApiAccessService` replacement.
+  - `DeliveryApi/` - the middleware that validates the token, the `IApiAccessService` replacement, and
+    `DeliveryApiEndpointGate`, which applies that access check to non-Umbraco endpoints under the prefix.
   - `Authentication/` - the authentication scheme, policy and `[RequireOidcToken]` for custom endpoints.
   - `Composition/` - the composer that wires it all up.
 - `tests/TheBuilder.ApiOidc.Tests/` - xunit v3. Tokens are minted locally with a throwaway RSA key.
