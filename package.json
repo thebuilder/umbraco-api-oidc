@@ -1,0 +1,9 @@
+{
+  "name": "thebuilder-api-oidc-workspace",
+  "private": true,
+  "packageManager": "pnpm@11.13.1",
+  "scripts": {
+    "docs:dev": "pnpm --filter @thebuilder/api-oidc-docs dev",
+    "docs:build": "pnpm --filter @thebuilder/api-oidc-docs build"
+  }
+}

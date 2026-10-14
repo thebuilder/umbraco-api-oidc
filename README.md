@@ -102,7 +102,7 @@ app.MapGet("/api/search", (string query) => /* ... */).RequireOidcToken();
 ```
 
 A request without a valid token gets a `401`. The token goes in the same header and is checked against the
-same `Issuers` as on the Delivery API. To accept only some of them, pass their `Name`s exactly as
+same `Issuers` as on the Delivery API. To accept only some of them, pass the `Name` of each exactly as
 configured, for example `[RequireOidcToken("Vercel")]`. A token from another trusted issuer then gets a `403`.
 Only a token checked by this package satisfies the attribute, even when the endpoint also accepts a cookie
 or another scheme.
@@ -288,6 +288,9 @@ dotnet test TheBuilder.ApiOidc.slnx
 
 `samples/TheBuilder.ApiOidc.Example` is an Umbraco site that references the package. It installs
 itself unattended into SQLite on first run.
+
+The documentation site at [api-oidc.thebuilder.dk](https://api-oidc.thebuilder.dk) lives in `apps/docs` and
+is built with Blume. `pnpm docs:dev` serves it with hot reload, and `pnpm docs:build` builds it as CI does.
 
 [RELEASE.md](RELEASE.md) describes how a GitHub Release publishes the package to nuget.org and the
 Umbraco Marketplace.

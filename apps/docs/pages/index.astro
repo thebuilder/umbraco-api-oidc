@@ -1,0 +1,159 @@
+---
+// @ts-nocheck - Blume's React island types flag valid Astro attributes.
+import PageLayout from "blume/components/layout/PageLayout.astro";
+import data from "blume:data";
+import { loadUmbracoPackages } from "@thebuilder/umbraco-docs";
+import { EcosystemSection, InstallCommand, LandingRoot } from "@thebuilder/umbraco-docs/astro";
+
+import "./_home/home.css";
+
+import { apiOidcPackage } from "../umbraco-package";
+
+// The other packages come from the hub at umbraco.thebuilder.dk, so this list never needs editing here.
+const ecosystemPackages = await loadUmbracoPackages();
+
+const { config } = data;
+const installCommand = "dotnet add package TheBuilder.ApiOidc";
+const repoUrl = apiOidcPackage.links.github;
+const configExample = `"ApiOidc": {
+  "Issuers": [
+    { "Preset": "Vercel", "Team": "acme" }
+  ]
+}`;
+const fetchExample = `import { getVercelOidcToken } from "@vercel/oidc";
+
+const url = new URL("/umbraco/delivery/api/v2/content", UMBRACO_URL);
+const response = await fetch(url, {
+  headers: { "X-Oidc-Token": await getVercelOidcToken() },
+});`;
+
+const features = [
+  {
+    title: "No shared secret",
+    body: "Tokens are signed by the platform and expire on their own, so there is no key to copy into every project and nothing to rotate.",
+  },
+  {
+    title: "Scoped to who you trust",
+    body: "List the Vercel team, the GitHub repositories or the cloud workloads that may read content. A token from anyone else is refused.",
+  },
+  {
+    title: "Drop-in",
+    body: "Public access, media access and the API key keep working as before, so frontends move over one at a time.",
+  },
+];
+---
+
+<PageLayout
+  site={{ title: config.title, description: config.description }}
+  logo={config.logo}
+  favicon={config.favicon}
+  banner={config.banner}
+  analytics={config.analytics}
+  navigation={data.navigation}
+  fontCssVars={data.fontCssVars}
+  themeMode={config.theme.mode}
+  searchEnabled={config.search.enabled}
+  siteUrl={config.site}
+  ogEnabled={config.og.enabled}
+  ogImage="/og/index.png"
+  page={{
+    title: "API OIDC for Umbraco",
+    description: config.description,
+    route: "/",
+  }}
+>
+  <LandingRoot class="home">
+    <section class="hero">
+      <div class="hero__glow" aria-hidden="true"></div>
+      <div class="shell hero__inner">
+        <img class="hero__mark reveal" src="/logo-mark.svg" width="72" height="72" alt="API OIDC" style="--i: 0" decoding="async" />
+        <p class="eyebrow reveal" style="--i: 1">Workload identity for the Umbraco Delivery API</p>
+        <h1 class="hero__title reveal" style="--i: 2">
+          Your platform's token, <span>instead of a shared API key.</span>
+        </h1>
+        <p class="hero__lede reveal" style="--i: 3">
+          Vercel, GitHub Actions, Google Cloud, AWS and GitLab give each workload a short-lived, signed token. Umbraco accepts it on the Delivery API and on the endpoints you choose.
+        </p>
+        <div class="hero__actions reveal" style="--i: 4">
+          <a class="button button--primary" href="/quickstart">Get started</a>
+          <a class="button button--secondary" href={repoUrl} rel="noopener">View on GitHub</a>
+        </div>
+        <div class="install-shell reveal" style="--i: 5">
+          <InstallCommand command={installCommand} />
+        </div>
+        <p class="hero__compat reveal" style="--i: 6">Umbraco CMS 17.1 or later · .NET 10</p>
+      </div>
+    </section>
+
+    <section class="shell trust reveal">
+      <p><strong>Umbraco still decides.</strong> A valid token adds a way in. A missing or refused one leaves the request to Umbraco's own rules, so public access and the API key keep working.</p>
+    </section>
+
+    <section class="shell section" aria-labelledby="features-title">
+      <div class="section-heading reveal">
+        <span class="rule" aria-hidden="true"></span>
+        <h2 id="features-title">Built for frontends that already have an identity</h2>
+        <p>For sites whose frontends run on a platform that issues OIDC tokens, and teams tired of passing one API key around.</p>
+      </div>
+      <div class="feature-grid">
+        {features.map((feature, index) => (
+          <article class="feature-card reveal" style={`--i: ${index + 1}`}>
+            <span aria-hidden="true">0{index + 1}</span>
+            <h3>{feature.title}</h3>
+            <p>{feature.body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="shell flow" aria-labelledby="flow-title">
+      <div class="flow__copy reveal">
+        <span class="rule" aria-hidden="true"></span>
+        <h2 id="flow-title">Trust an issuer in appsettings</h2>
+        <p>Presets cover Vercel and GitHub Actions. Any other OIDC issuer needs its URL, an audience and the claims a token must carry.</p>
+        <a class="text-link" href="/issuers">Set up your issuer <span aria-hidden="true">→</span></a>
+      </div>
+      <figure class="code-preview reveal" style="--i: 1">
+        <figcaption>appsettings.json <span>JSON</span></figcaption>
+        <pre tabindex="0"><code>{configExample}</code></pre>
+      </figure>
+    </section>
+
+    <section class="shell api" aria-labelledby="api-title">
+      <div class="api__copy reveal">
+        <span class="rule" aria-hidden="true"></span>
+        <h2 id="api-title">Send the token, not a key</h2>
+        <p>The frontend asks its platform for a token and sends it in one header. Your own endpoints can require it too, with one attribute.</p>
+        <a class="button button--secondary" href="/custom-endpoints">Protect your own endpoints</a>
+      </div>
+      <figure class="code-preview reveal" style="--i: 1">
+        <figcaption>A Vercel function <span>TypeScript</span></figcaption>
+        <pre tabindex="0"><code>{fetchExample}</code></pre>
+      </figure>
+    </section>
+
+    <section class="shell closing reveal">
+      <h2>Retire your Delivery API key</h2>
+      <p>Install the package, trust your platform's issuer, and move your frontends over one at a time.</p>
+      <a class="button button--primary" href="/quickstart">Read the quickstart</a>
+    </section>
+
+    <EcosystemSection
+      packages={ecosystemPackages}
+      currentPackageId={apiOidcPackage.id}
+    />
+  </LandingRoot>
+
+  <footer class="home-footer" slot="footer">
+    <div class="shell home-footer__inner">
+      <div>
+        <strong>API OIDC</strong>
+        <span>MIT licensed · built by <a href="https://github.com/thebuilder" rel="noopener">thebuilder</a></span>
+      </div>
+      <nav aria-label="Footer">
+        <a href="/overview">Docs</a>
+        <a href={repoUrl} rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </footer>
+</PageLayout>

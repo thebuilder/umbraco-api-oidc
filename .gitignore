@@ -7,3 +7,10 @@ samples/**/appsettings-schema*.json
 samples/**/umbraco-package-schema.json
 /artifacts/
 .DS_Store
+**/node_modules/
+.pnpm-store/
+apps/docs/.blume/
+apps/docs/public/og/
+apps/docs/public/opengraph-image.png
+**/.astro/
+**/dist/
