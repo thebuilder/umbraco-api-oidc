@@ -11,8 +11,8 @@ importers:
   apps/docs:
     dependencies:
       '@thebuilder/umbraco-docs':
-        specifier: ^1.4.0
-        version: 1.4.0(@types/node@26.6.5)(blume@2.2.3(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@vercel/functions@3.9.11)(csstype@3.2.3)(prettier@3.9.10)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1))(vgpu@0.6.0)
+        specifier: ^1.4.2
+        version: 1.4.2(@types/node@26.6.5)(blume@2.2.3(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@vercel/functions@3.9.11)(csstype@3.2.3)(prettier@3.9.10)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1))(vgpu@0.6.0)
       blume:
         specifier: ^2.2.3
         version: 2.2.3(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@vercel/functions@3.9.11)(csstype@3.2.3)(prettier@3.9.10)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1)
@@ -1315,8 +1315,8 @@ packages:
       csstype:
         optional: true
 
-  '@thebuilder/umbraco-docs@1.4.0':
-    resolution: {integrity: sha512-JpCkJOZYLBGiq6Ycv+BlYPG5zW/9qNWLLT4iJleu7JEj1gX8E+8FWUcLmF07ThPp/7xCzPN+zK5UoiUnFDULug==}
+  '@thebuilder/umbraco-docs@1.4.2':
+    resolution: {integrity: sha512-cberEfzee8bu/GVHHTc/2ePf/LF7uUHPCwsbywgOQ6jt5uLqp+2c1ERoDXcZus4Wt7rYN4QxOlEtKQHNIozPZQ==}
     engines: {node: '>=22.12'}
     hasBin: true
     peerDependencies:
@@ -5134,7 +5134,7 @@ snapshots:
       - preact
       - react
 
-  '@thebuilder/umbraco-docs@1.4.0(@types/node@26.6.5)(blume@2.2.3(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@vercel/functions@3.9.11)(csstype@3.2.3)(prettier@3.9.10)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1))(vgpu@0.6.0)':
+  '@thebuilder/umbraco-docs@1.4.2(@types/node@26.6.5)(blume@2.2.3(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@vercel/functions@3.9.11)(csstype@3.2.3)(prettier@3.9.10)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1))(vgpu@0.6.0)':
     dependencies:
       gray-matter: 4.0.3
       sharp: 0.35.3(@types/node@26.6.5)
