@@ -11,6 +11,6 @@ public enum IssuerPreset
     /// <summary>Vercel functions and builds, scoped by team, project and environment.</summary>
     Vercel,
 
-    /// <summary>GitHub Actions workflows, scoped by repository and optionally by ref and environment.</summary>
+    /// <summary>GitHub Actions workflows, scoped by owner and optionally by repository, ref and environment.</summary>
     GitHubActions,
 }

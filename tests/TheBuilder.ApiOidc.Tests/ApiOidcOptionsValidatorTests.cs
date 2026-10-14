@@ -22,19 +22,19 @@ public sealed class ApiOidcOptionsValidatorTests
         Assert.False(IsValid(new TrustedIssuerOptions { Preset = IssuerPreset.Vercel, Team = "vercel.com/acme", Projects = ["acme-web"] }));
 
     [Fact]
-    public void Requires_a_github_audience()
+    public void Requires_a_github_owner()
     {
         var github = FakeIssuers.GitHub();
-        github.Audience = null;
+        github.Owner = null;
 
         Assert.False(IsValid(github));
     }
 
     [Fact]
-    public void Requires_a_github_repository()
+    public void Refuses_a_github_repository_of_another_owner()
     {
         var github = FakeIssuers.GitHub();
-        github.Repositories = [];
+        github.Repositories = ["acme/site", "other/site"];
 
         Assert.False(IsValid(github));
     }

@@ -36,6 +36,7 @@ public sealed class EndpointProtectionTests : IAsyncLifetime
             ["ApiOidc:Issuers:1:Name"] = "deploy",
             ["ApiOidc:Issuers:1:Preset"] = "GitHubActions",
             ["ApiOidc:Issuers:1:Audience"] = "https://cms.example.com",
+            ["ApiOidc:Issuers:1:Owner"] = "acme",
             ["ApiOidc:Issuers:1:Repositories:0"] = "acme/site",
         });
         builder.Services.AddSingleton<TimeProvider>(new FixedTimeProvider(FakeIssuers.Now));

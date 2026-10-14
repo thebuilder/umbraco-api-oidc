@@ -18,7 +18,10 @@ public sealed class TrustedIssuerOptions
     /// <summary>The token's <c>iss</c>. Set by the Vercel and GitHub Actions presets.</summary>
     public string? Issuer { get; set; }
 
-    /// <summary>The token's <c>aud</c>. Required, except for Vercel, which defaults to <c>https://vercel.com/{team}</c>.</summary>
+    /// <summary>
+    ///     The token's <c>aud</c>: which service the token was made for. Required for a custom issuer. Vercel defaults
+    ///     to <c>https://vercel.com/{team}</c> and GitHub Actions to <c>https://github.com/{owner}</c>.
+    /// </summary>
     public string? Audience { get; set; }
 
     /// <summary>
@@ -44,7 +47,16 @@ public sealed class TrustedIssuerOptions
     /// <summary>Vercel: project names or ids (<c>prj_...</c>) allowed in. Empty allows every project in the team.</summary>
     public IList<string> Projects { get; set; } = [];
 
-    /// <summary>GitHub Actions: repositories allowed in, as <c>owner/repo</c>.</summary>
+    /// <summary>
+    ///     GitHub Actions: the user or organization that owns the repositories, such as <c>acme</c>. Write it as GitHub
+    ///     does, because the default audience is built from it.
+    /// </summary>
+    public string? Owner { get; set; }
+
+    /// <summary>
+    ///     GitHub Actions: repositories allowed in, as <c>owner/repo</c>. Empty allows every repository the
+    ///     <see cref="Owner" /> has.
+    /// </summary>
     public IList<string> Repositories { get; set; } = [];
 
     /// <summary>GitHub Actions: refs allowed in, such as <c>refs/heads/main</c>. Empty allows any.</summary>

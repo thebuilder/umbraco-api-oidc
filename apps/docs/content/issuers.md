@@ -11,7 +11,7 @@ Each entry in `Issuers` is one source of tokens. A token is accepted when its is
 | ---------------- | ------------ |
 | `Name`           | A name for log messages and for `[RequireOidcToken(...)]`. Defaults to the preset name or the issuer URL. |
 | `Preset`         | `Vercel`, `GitHubActions`, or `Custom` (the default). |
-| `Audience`       | The `aud` the token must carry. |
+| `Audience`       | The `aud` the token must carry, which names the service the token was made for. |
 | `RequiredClaims` | Claims the token must carry, each with its allowed values. Added to the preset's own rules. |
 | `AllowPreview`   | Whether the token also unlocks draft content, as the API key does. Defaults to `true`. |
 | `MetadataAddress`| Where the issuer publishes its keys. Defaults to `{issuer}/.well-known/openid-configuration`. |
@@ -36,21 +36,22 @@ See Vercel's [OIDC federation docs](https://vercel.com/docs/oidc) for how tokens
 See GitHub's [OpenID Connect docs](https://docs.github.com/en/actions/concepts/security/openid-connect) for how workflows request tokens and what they contain.
 
 ```json
-{
-  "Preset": "GitHubActions",
-  "Audience": "https://cms.example.com",
-  "Repositories": ["acme/site"],
-  "Refs": ["refs/heads/main"]
-}
+{ "Preset": "GitHubActions", "Owner": "acme" }
 ```
 
-Request the token with the same audience, in a job with `permissions: id-token: write`:
+`Owner` is your GitHub organization, or a user, written as GitHub writes it. It is the only required setting, and tokens from any other owner are refused. On its own it accepts every repository the owner has. To narrow it down, add any of these filters:
+
+- `Repositories`, as `owner/repo`, such as `["acme/site"]`.
+- `Refs`, such as `["refs/heads/main"]`.
+- `Environments`, the GitHub deployment environments allowed in.
+
+Request the token in a job with `permissions: id-token: write`:
 
 ```js
-const token = await core.getIDToken('https://cms.example.com');
+const token = await core.getIDToken();
 ```
 
-`Audience` and `Repositories` are required. `Refs` and `Environments` are optional filters.
+The token's audience says which service it was made for. Without an argument, GitHub uses `https://github.com/{owner}`, which is also this preset's default. With that default, a token your workflows send to another service that accepts GitHub's default audience would also work on your CMS. To keep them apart, pick your own audience: set it as `Audience`, such as `"https://cms.example.com"`, and pass the same value to `core.getIDToken('https://cms.example.com')`.
 
 ## Any other issuer
 

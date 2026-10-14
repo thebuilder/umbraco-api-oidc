@@ -62,6 +62,7 @@ internal sealed class FakeIssuers : IIssuerConfigurationProvider
     {
         Preset = IssuerPreset.GitHubActions,
         Audience = "https://cms.example.com",
+        Owner = "acme",
         Repositories = ["acme/site"],
     };
 
@@ -98,6 +99,7 @@ internal sealed class FakeIssuers : IIssuerConfigurationProvider
         {
             ["sub"] = $"repo:{repository}:ref:{reference}",
             ["repository"] = repository,
+            ["repository_owner"] = repository.Split('/')[0],
             ["ref"] = reference,
         });
 
