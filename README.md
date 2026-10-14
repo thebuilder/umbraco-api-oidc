@@ -10,7 +10,7 @@ Umbraco to accept those tokens, on the Delivery API and on any endpoint you
 [protect with `[RequireOidcToken]`](#protecting-your-own-endpoints).
 
 - **No shared secret.** Tokens are signed by the platform and expire on their own. There is nothing to rotate.
-- **Scoped to exactly who you trust.** You list the Vercel projects, GitHub repositories or other workloads
+- **Scoped to exactly who you trust.** You list the Vercel teams or projects, GitHub repositories or other workloads
   that may read content. A token from anyone else gets a `401`.
 - **Drop-in.** Public access, media access and the API key keep working exactly as before, so you can move
   frontends over one at a time and remove the API key when the last one is done.
@@ -58,8 +58,7 @@ the API key.
        "Issuers": [
          {
            "Preset": "Vercel",
-           "Team": "acme",
-           "Projects": ["acme-web"]
+           "Team": "acme"
          }
        ]
      }
@@ -137,12 +136,15 @@ See Vercel's [OIDC federation docs](https://vercel.com/docs/oidc) for how tokens
 they contain.
 
 ```json
-{ "Preset": "Vercel", "Team": "acme", "Projects": ["acme-web", "prj_123"] }
+{ "Preset": "Vercel", "Team": "acme" }
 ```
 
-- `Team` is your team slug. `Projects` takes names or ids.
-- `Environments` defaults to `production` and `preview`. Add `development` to use the token
-  `vercel env pull` writes for local work.
+- `Team` is your team slug, and the only required setting. Tokens from any other team are refused.
+- `Projects` limits access to some of the team's projects, by name or id, such as
+  `["acme-web", "prj_123"]`. Leave it out to accept every project in the team.
+- `Environments` defaults to `production`, `preview` and `development`. The `development` token is the one
+  `vercel env pull` writes for local work, and anyone on the team can pull it. To keep local machines out,
+  set `"Environments": ["production", "preview"]`.
 - `IssuerMode` is `Team` (the default) or `Global`, matching your team's OIDC settings on Vercel.
 - `Audience` defaults to `https://vercel.com/{team}`, which is what `getVercelOidcToken()` returns.
 - Builds get a token too, through `VERCEL_OIDC_TOKEN`, so static generation works.

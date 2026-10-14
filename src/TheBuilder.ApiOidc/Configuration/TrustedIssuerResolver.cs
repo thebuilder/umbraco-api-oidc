@@ -33,8 +33,6 @@ internal static class TrustedIssuerResolver
             case IssuerPreset.Vercel:
                 if (string.IsNullOrWhiteSpace(options.Team) || options.Team.Any(c => char.IsWhiteSpace(c) || c == '/'))
                     failures.Add($"{path}:Team must be the Vercel team slug, such as \"acme\".");
-                if (!HasValues(options.Projects))
-                    failures.Add($"{path}:Projects must name at least one Vercel project.");
 
                 issuer = options.IssuerMode == VercelIssuerMode.Team
                     ? $"{Constants.Vercel.Host}/{options.Team}"
@@ -45,11 +43,14 @@ internal static class TrustedIssuerResolver
                 // In global issuer mode every team shares the issuer, so the owner is what keeps another team's
                 // deployments out. In team mode it repeats the issuer, which costs nothing.
                 rules.Add(Rule([Constants.Vercel.Owner], [options.Team ?? ""], StringComparison.Ordinal));
-                rules.Add(Rule([Constants.Vercel.Project, Constants.Vercel.ProjectId], options.Projects, StringComparison.Ordinal));
-                // Development tokens are left out by default, because `vercel env pull` hands one to anyone on the team.
+                // Without a project list, every project in the team gets in. The team is what keeps everyone else out.
+                if (HasValues(options.Projects))
+                    rules.Add(Rule([Constants.Vercel.Project, Constants.Vercel.ProjectId], options.Projects, StringComparison.Ordinal));
+                // Development is included by default, so the token `vercel env pull` writes works locally. It is
+                // handed to anyone on the team, so set Environments to leave it out.
                 rules.Add(Rule(
                     [Constants.Vercel.Environment],
-                    HasValues(options.Environments) ? options.Environments : ["production", "preview"],
+                    HasValues(options.Environments) ? options.Environments : ["production", "preview", "development"],
                     StringComparison.OrdinalIgnoreCase));
                 break;
 

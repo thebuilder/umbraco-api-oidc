@@ -38,7 +38,7 @@ public sealed class TrustedIssuerOptions
     /// <summary>Vercel: the issuer mode set on the team.</summary>
     public VercelIssuerMode IssuerMode { get; set; } = VercelIssuerMode.Team;
 
-    /// <summary>Vercel: project names or ids (<c>prj_...</c>) allowed in.</summary>
+    /// <summary>Vercel: project names or ids (<c>prj_...</c>) allowed in. Empty allows every project in the team.</summary>
     public IList<string> Projects { get; set; } = [];
 
     /// <summary>GitHub Actions: repositories allowed in, as <c>owner/repo</c>.</summary>
@@ -48,7 +48,8 @@ public sealed class TrustedIssuerOptions
     public IList<string> Refs { get; set; } = [];
 
     /// <summary>
-    ///     Vercel: environments allowed in, defaulting to <c>production</c> and <c>preview</c>.
+    ///     Vercel: environments allowed in, defaulting to <c>production</c>, <c>preview</c> and
+    ///     <c>development</c>.
     ///     GitHub Actions: deployment environments allowed in. Empty allows any.
     /// </summary>
     public IList<string> Environments { get; set; } = [];

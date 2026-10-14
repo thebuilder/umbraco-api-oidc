@@ -43,18 +43,28 @@ public sealed class OidcTokenValidatorTests
     }
 
     [Fact]
-    public async Task Refuses_vercel_development_tokens_by_default()
+    public async Task Accepts_vercel_development_tokens_by_default()
     {
-        Assert.False((await Validate(_issuers.VercelToken(environment: "development"))).IsValid);
+        Assert.True((await Validate(_issuers.VercelToken(environment: "development"))).IsValid);
     }
 
     [Fact]
-    public async Task Accepts_vercel_development_tokens_when_listed()
+    public async Task Refuses_vercel_environments_left_out_of_the_list()
     {
         var vercel = FakeIssuers.Vercel();
-        vercel.Environments = ["development"];
+        vercel.Environments = ["production"];
 
-        Assert.True((await Validate(_issuers.VercelToken(environment: "development"), vercel)).IsValid);
+        Assert.False((await Validate(_issuers.VercelToken(environment: "development"), vercel)).IsValid);
+    }
+
+    [Fact]
+    public async Task Accepts_every_project_in_the_team_without_a_project_list()
+    {
+        var vercel = FakeIssuers.Vercel();
+        vercel.Projects = [];
+
+        Assert.True((await Validate(_issuers.VercelToken(project: "other-site", projectId: "prj_999"), vercel)).IsValid);
+        Assert.False((await Validate(_issuers.VercelToken(issuer: "https://oidc.vercel.com/evil", owner: "evil"), vercel)).IsValid);
     }
 
     [Fact]
