@@ -6,7 +6,8 @@
   --pink: #e264bd;
   --line: var(--blume-border);
   color: var(--ink);
-  overflow: clip;
+  /* Only sideways: the particles reach up behind the header, above this element. */
+  overflow-x: clip;
 }
 
 .home :where(h1, h2, h3) { text-wrap: balance; }
