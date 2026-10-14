@@ -22,9 +22,6 @@
 /* Blume picks the label color that meets AA on the accent: white in light mode, dark in dark mode. */
 .home .button--primary { border-color: var(--purple); background: var(--purple); color: var(--blume-accent-foreground); box-shadow: 0 .625rem 1.9rem color-mix(in oklab, var(--purple) 23%, transparent); }
 .home .button--primary:hover { background: color-mix(in oklab, var(--purple) 88%, black); color: var(--blume-accent-foreground); }
-.home .trust { padding-block: 1.75rem; border-bottom: 1px solid var(--line); color: var(--muted); text-align: center; }
-.home .trust p { margin: 0; }
-.home .trust strong { color: var(--ink); }
 
 .home .section { padding-block: 5rem; }
 .home .section-heading { max-width: 40rem; }
