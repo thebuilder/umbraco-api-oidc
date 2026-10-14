@@ -46,11 +46,11 @@ internal static class TrustedIssuerResolver
                 // Without a project list, every project in the team gets in. The team is what keeps everyone else out.
                 if (HasValues(options.Projects))
                     rules.Add(Rule([Constants.Vercel.Project, Constants.Vercel.ProjectId], options.Projects, StringComparison.Ordinal));
-                // Development is included by default, so the token `vercel env pull` writes works locally. It is
-                // handed to anyone on the team, so set Environments to leave it out.
+                // Development is left out by default: its token is the one `vercel env pull` hands to anyone on
+                // the team for local work. A site that wants local machines in lists it in Environments.
                 rules.Add(Rule(
                     [Constants.Vercel.Environment],
-                    HasValues(options.Environments) ? options.Environments : ["production", "preview", "development"],
+                    HasValues(options.Environments) ? options.Environments : ["production", "preview"],
                     StringComparison.OrdinalIgnoreCase));
                 break;
 

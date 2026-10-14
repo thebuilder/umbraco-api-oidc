@@ -17,6 +17,8 @@ of the shared Delivery API key.
   - `Composition/` - the composer that wires it all up.
 - `tests/TheBuilder.ApiOidc.Tests/` - xunit v3. Tokens are minted locally with a throwaway RSA key.
 - `samples/TheBuilder.ApiOidc.Example/` - an Umbraco site for trying the package by hand.
+- `apps/docs/` - the documentation site, built with Blume and `@thebuilder/umbraco-docs`. Its pages
+  follow the README, so a change to one belongs in the other.
 
 ## Commands
 
@@ -24,6 +26,7 @@ of the shared Delivery API key.
 dotnet build TheBuilder.ApiOidc.slnx -c Release
 dotnet test TheBuilder.ApiOidc.slnx -c Release
 dotnet pack src/TheBuilder.ApiOidc/TheBuilder.ApiOidc.csproj -c Release -o artifacts
+pnpm install && pnpm docs:build
 ```
 
 `TreatWarningsAsErrors` is on everywhere, NuGet audit warnings included, so a vulnerable transitive

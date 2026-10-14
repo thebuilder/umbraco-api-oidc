@@ -51,8 +51,8 @@ public sealed class TrustedIssuerOptions
     public IList<string> Refs { get; set; } = [];
 
     /// <summary>
-    ///     Vercel: environments allowed in, defaulting to <c>production</c>, <c>preview</c> and
-    ///     <c>development</c>.
+    ///     Vercel: environments allowed in, defaulting to <c>production</c> and <c>preview</c>. Add
+    ///     <c>development</c> to let local machines in.
     ///     GitHub Actions: deployment environments allowed in. Empty allows any.
     /// </summary>
     public IList<string> Environments { get; set; } = [];

@@ -1,0 +1,13 @@
+packages:
+  - apps/docs
+
+onlyBuiltDependencies:
+  - esbuild
+allowBuilds:
+  # Download telemetry that Blume's API tooling pulls in. Its install script only reports the
+  # download, so it never runs.
+  '@scarf/scarf': false
+  esbuild: true
+minimumReleaseAgeExclude:
+  # Our own packages are trusted, so new releases install right away.
+  - '@thebuilder/*'

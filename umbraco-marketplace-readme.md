@@ -3,22 +3,21 @@
 Let your frontends call a private Umbraco Content Delivery API, and your own API endpoints, with the OIDC
 token their platform already gives them, instead of a shared API key.
 
-A private Delivery API is protected by one API key. Every frontend gets the same key, it lives in
-environment variables forever, and rotating it means touching every project at once. Vercel, GitHub
-Actions, Google Cloud, AWS and other platforms give each workload a short-lived, signed token that says
-who it is. This package lets Umbraco accept those tokens.
+A private Delivery API is protected by a single API key. Every frontend shares it, and rotating it means
+updating every project at the same time. Vercel, GitHub Actions, Google Cloud, AWS and other platforms can
+instead give each workload a short-lived token, signed by the platform. This package lets Umbraco accept
+those tokens.
 
-## Key features
+## What it does
 
-- No shared secret: tokens are signed by the platform and expire on their own.
-- Scoped to exactly who you trust: a Vercel team, or specific projects and environments, GitHub repositories and
-  branches, or any OIDC issuer with the claims you require.
-- Presets for Vercel and GitHub Actions, and a generic setup for Google Cloud, AWS, Azure and GitLab.
-- Drop-in: public access, media access and the existing API key keep working, so frontends can move over
-  one at a time.
+- Accepts tokens from the Vercel teams or projects, GitHub repositories and branches, or other OIDC issuers
+  you list, and refuses the rest.
+- Has presets for Vercel and GitHub Actions. Google Cloud, AWS, Azure and GitLab need an issuer URL, an
+  audience and one required claim.
+- Leaves public access, media access and the API key as they are, so frontends can move over one at a time.
 - Grants preview access to draft content, as the API key does, unless you turn it off per issuer.
-- Protects your own endpoints too, such as a search API, with a `[RequireOidcToken]` attribute.
-- Gives custom endpoints, such as a dictionary endpoint, the Delivery API's own access rules with `[RequireDeliveryApiAccess]`.
+- Protects your own endpoints with `[RequireOidcToken]`, or with the Delivery API's own rules using
+  `[RequireDeliveryApiAccess]`.
 
 ## Install
 
