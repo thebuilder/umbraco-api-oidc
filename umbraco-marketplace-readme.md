@@ -11,7 +11,7 @@ who it is. This package lets Umbraco accept those tokens.
 ## Key features
 
 - No shared secret: tokens are signed by the platform and expire on their own.
-- Scoped to exactly who you trust: specific Vercel projects and environments, GitHub repositories and
+- Scoped to exactly who you trust: a Vercel team, or specific projects and environments, GitHub repositories and
   branches, or any OIDC issuer with the claims you require.
 - Presets for Vercel and GitHub Actions, and a generic setup for Google Cloud, AWS, Azure and GitLab.
 - Drop-in: public access, media access and the existing API key keep working, so frontends can move over
