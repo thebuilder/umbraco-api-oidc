@@ -54,7 +54,7 @@ const token = await core.getIDToken('https://cms.example.com');
 
 ## Any other issuer
 
-`Issuer`, `Audience` and at least one required claim are needed. Without a claim, any workload the issuer serves could get in. With Google, for example, that would be anyone with a Google account. Required claims are compared with top-level string claims in the token, exactly.
+`Issuer`, `Audience` and at least one required claim are needed. Without a claim, any workload the issuer serves could get in. With Google, for example, that would be anyone with a Google account. Each required claim must match a top-level string claim in the token, including its case.
 
 Decode a real token from your workload, for example with [jwt.io](https://jwt.io), before you write the entry: it shows the exact `iss`, `aud` and claims to match.
 

@@ -3,21 +3,20 @@
 Let your frontends call the Umbraco Delivery API, and your own API endpoints, with the OIDC token their
 platform already gives them, instead of a shared API key.
 
-Umbraco protects a private Delivery API with one API key. Every frontend gets the same key, it lives in
-environment variables forever, and rotating it means touching every project at once. Most hosting and CI
-platforms now give each workload a short-lived, signed token that says who it is. This package teaches
-Umbraco to accept those tokens, on the Delivery API and on
-[your own endpoints](#protecting-your-own-endpoints).
+A private Delivery API is protected by a single API key. Every frontend shares it, and rotating it means
+updating every project at the same time. Most hosting and CI platforms can instead give each workload a
+short-lived token, signed by the platform, that says which project or repository it came from. This package
+lets Umbraco accept those tokens on the Delivery API and on [your own endpoints](#protecting-your-own-endpoints).
 
-- **No shared secret.** Tokens are signed by the platform and expire on their own. There is nothing to rotate.
-- **Scoped to exactly who you trust.** You list the Vercel teams or projects, GitHub repositories or other workloads
-  that may read content. A token from anyone else is refused.
-- **Drop-in.** Public access, media access and the API key keep working exactly as before, so you can move
-  frontends over one at a time and remove the API key when the last one is done.
+- Tokens expire on their own, so there is no secret to store or rotate.
+- You choose which Vercel teams or projects, GitHub repositories or other workloads are allowed. Tokens from
+  anywhere else are refused.
+- Public access, media access and the API key work as before, so you can move frontends over one at a time
+  and remove the key after the last one.
 
 The package requires Umbraco 17.1 or later, including 18.
 
-## Which platforms work
+## Supported platforms
 
 | Platform | How the frontend gets a token | Setup |
 | --- | --- | --- |
@@ -200,7 +199,7 @@ const token = await core.getIDToken('https://cms.example.com');
 
 `Issuer`, `Audience` and at least one required claim are needed. Without a claim, any workload the
 issuer serves could get in. With Google, for example, that would be anyone with a Google account.
-Required claims are compared with top-level string claims in the token, exactly.
+Each required claim must match a top-level string claim in the token, including its case.
 
 Decode a real token from your workload, for example with [jwt.io](https://jwt.io), before you write the
 entry: it shows the exact `iss`, `aud` and claims to match.

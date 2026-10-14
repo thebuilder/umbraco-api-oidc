@@ -29,16 +29,16 @@ const response = await fetch(url, {
 
 const features = [
   {
-    title: "No shared secret",
-    body: "Tokens are signed by the platform and expire on their own, so there is no key to copy into every project and nothing to rotate.",
+    title: "Nothing to rotate",
+    body: "Each token is signed by the platform and expires on its own. There is no key to copy into each project's environment variables.",
   },
   {
-    title: "Scoped to who you trust",
-    body: "List the Vercel team, the GitHub repositories or the cloud workloads that may read content. A token from anyone else is refused.",
+    title: "You list who gets in",
+    body: "A Vercel team, a set of GitHub repositories or a cloud service account. Tokens from anywhere else are refused.",
   },
   {
-    title: "Drop-in",
-    body: "Public access, media access and the API key keep working as before, so frontends move over one at a time.",
+    title: "The API key still works",
+    body: "Public access and the API key behave as before, so you can move frontends over one at a time.",
   },
 ];
 ---
@@ -86,14 +86,14 @@ const features = [
     </section>
 
     <section class="shell trust reveal">
-      <p><strong>Umbraco still decides.</strong> A valid token adds a way in. A missing or refused one leaves the request to Umbraco's own rules, so public access and the API key keep working.</p>
+      <p><strong>A token only adds a way in.</strong> A request without one, or with a refused one, gets the same answer from Umbraco as it does today.</p>
     </section>
 
     <section class="shell section" aria-labelledby="features-title">
       <div class="section-heading reveal">
         <span class="rule" aria-hidden="true"></span>
-        <h2 id="features-title">Built for frontends that already have an identity</h2>
-        <p>For sites whose frontends run on a platform that issues OIDC tokens, and teams tired of passing one API key around.</p>
+        <h2 id="features-title">Why use a token instead of the key</h2>
+        <p>For frontends that run on Vercel, GitHub Actions, Google Cloud, AWS, GitLab or another platform that issues OIDC tokens.</p>
       </div>
       <div class="feature-grid">
         {features.map((feature, index) => (
@@ -122,8 +122,8 @@ const features = [
     <section class="shell api" aria-labelledby="api-title">
       <div class="api__copy reveal">
         <span class="rule" aria-hidden="true"></span>
-        <h2 id="api-title">Send the token, not a key</h2>
-        <p>The frontend asks its platform for a token and sends it in one header. Your own endpoints can require it too, with one attribute.</p>
+        <h2 id="api-title">Send the token in a header</h2>
+        <p>The frontend asks its platform for a token and sends it as <code>X-Oidc-Token</code>. Your own endpoints can require the same token with an attribute.</p>
         <a class="button button--secondary" href="/custom-endpoints">Protect your own endpoints</a>
       </div>
       <figure class="code-preview reveal" style="--i: 1">
@@ -133,8 +133,8 @@ const features = [
     </section>
 
     <section class="shell closing reveal">
-      <h2>Retire your Delivery API key</h2>
-      <p>Install the package, trust your platform's issuer, and move your frontends over one at a time.</p>
+      <h2>Try it on one frontend</h2>
+      <p>Install the package, add your platform's issuer, and send the token from one frontend. The others keep using the API key until you move them.</p>
       <a class="button button--primary" href="/quickstart">Read the quickstart</a>
     </section>
 
