@@ -15,22 +15,10 @@
 .home-footer .shell { width: min(70rem, calc(100% - 2.5rem)); margin-inline: auto; }
 .home .reveal { animation: home-reveal .55s ease-out both; animation-delay: calc(var(--i, 0) * 70ms); }
 
-.home .hero { position: relative; padding-block: clamp(3rem, 8vw, 6rem) 0; text-align: center; }
-.home .hero__glow { position: absolute; inset: -20% -10% auto; z-index: 0; height: 40rem; background: radial-gradient(42% 55% at 32% 0%, color-mix(in oklab, #60a5fa 24%, transparent), transparent 72%), radial-gradient(40% 52% at 55% 4%, color-mix(in oklab, #a78bfa 22%, transparent), transparent 72%), radial-gradient(42% 50% at 76% 0%, color-mix(in oklab, #f472b6 16%, transparent), transparent 72%); filter: blur(10px); pointer-events: none; }
-.home .hero__inner { position: relative; max-width: 56rem; }
-.home .hero__mark { display: block; width: 4.5rem; height: 4.5rem; margin-inline: auto; border-radius: 22%; filter: drop-shadow(0 .625rem 1.75rem color-mix(in oklab, #8b5cf6 40%, transparent)); }
-.home .eyebrow { margin: 1.5rem 0 .75rem; color: var(--purple); font-size: clamp(.62rem, 1.8vw, .72rem); font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
-.home .hero__title { max-width: 18ch; margin: 0 auto; font-family: var(--blume-font-display); font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 700; line-height: 1.05; letter-spacing: -.02em; }
-.home .hero__title span { display: block; background: linear-gradient(100deg, var(--blue), var(--purple) 52%, var(--pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.home .hero__lede { max-width: 42rem; margin: 1.5rem auto 0; color: var(--muted); font-size: clamp(1.05rem, 1.5vw, 1.25rem); line-height: 1.6; }
-.home .hero__actions { display: flex; justify-content: center; gap: .75rem; margin-top: 1.75rem; }
 .home .button { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; padding-inline: 1.25rem; border: 1px solid var(--line); border-radius: var(--blume-radius); color: var(--ink); font-weight: 600; text-decoration: none; }
 .home .button:hover { border-color: var(--purple); }
 .home .button--primary { border-color: var(--purple); background: var(--purple); color: #fff; box-shadow: 0 .625rem 1.9rem rgba(91,124,245,.23); }
 .home .button--primary:hover { background: #4a6ae6; color: #fff; }
-.home .install-shell { display: flex; justify-content: center; margin-top: 1.25rem; }
-.home .install-shell .udocs-install { opacity: 1; transform: none; }
-.home .hero__compat { margin: .75rem 0 2.75rem; color: var(--muted); font-size: .78rem; }
 .home .trust { padding-block: 1.75rem; border-bottom: 1px solid var(--line); color: var(--muted); text-align: center; }
 .home .trust p { margin: 0; }
 .home .trust strong { color: var(--ink); }
@@ -87,11 +75,7 @@
 @media (max-width: 47.5rem) {
   .home .shell,
   .home-footer .shell { width: min(100% - 1.75rem, 70rem); }
-  .home .hero { padding-block: 3rem 0; }
-  .home .hero__glow { inset-inline: -45%; }
-  .home .eyebrow { max-width: 30rem; margin-inline: auto; }
-  .home .hero__actions { flex-direction: column; }
-  .home .section { padding-block: 3.75rem; }
+          .home .section { padding-block: 3.75rem; }
   .home .feature-grid { grid-template-columns: 1fr; gap: 1.5rem; }
   .home .feature-card { min-height: auto; }
   .home .feature-card h3 { margin-top: 1.875rem; }

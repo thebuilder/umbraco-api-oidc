@@ -11,11 +11,14 @@ importers:
   apps/docs:
     dependencies:
       '@thebuilder/umbraco-docs':
-        specifier: ^1.2.0
-        version: 1.2.0(@types/node@26.6.5)(blume@2.2.3(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@vercel/functions@3.9.11)(csstype@3.2.3)(prettier@3.9.10)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1))
+        specifier: ^1.3.0
+        version: 1.3.0(@types/node@26.6.5)(blume@2.2.3(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@vercel/functions@3.9.11)(csstype@3.2.3)(prettier@3.9.10)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1))(vgpu@0.6.0)
       blume:
         specifier: ^2.2.3
         version: 2.2.3(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@vercel/functions@3.9.11)(csstype@3.2.3)(prettier@3.9.10)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1)
+      vgpu:
+        specifier: ^0.6.0
+        version: 0.6.0
     devDependencies:
       '@types/node':
         specifier: ^26.2.0
@@ -688,6 +691,10 @@ packages:
     resolution: {integrity: sha512-j37dj/h6p6pots1L7pLPPNuABEEu9WP4OYg9pW1g+nYG331j0+3canE9OagtYdytYvdSAMG+2fKU5cxep6LgjA==}
     engines: {node: '>=22.12.0'}
 
+  '@modelcontextprotocol/core@2.0.0':
+    resolution: {integrity: sha512-pJCEwGG7Lfr/+PQp9ZTwKXNeO5wzbfKL7H3MYpCorM4oFBoQrdjnBgEoqG+RjhsvS1FKrDbKux+M1HhlnGWqcA==}
+    engines: {node: '>=20'}
+
   '@modelcontextprotocol/sdk@1.32.1':
     resolution: {integrity: sha512-2DdE+SJDtzLEEWzY1ZjY7Q+VcPhcV1KisD3zI4u0XZyktsjHum1mwbMI+JaulUBi2OZk+KJAi2uPXzxichPkdw==}
     engines: {node: '>=18'}
@@ -697,6 +704,10 @@ packages:
     peerDependenciesMeta:
       '@cfworker/json-schema':
         optional: true
+
+  '@modelcontextprotocol/server@2.0.0':
+    resolution: {integrity: sha512-YhHWdHfpFMQfd0prsEnxKeS3Qz3ytIGmsS0sth4KDjnacIT7hxk6hXHkJ9KysxlkvTM+WZAtQbbcUhdoP4Hvtw==}
+    engines: {node: '>=20'}
 
   '@napi-rs/wasm-runtime@1.2.4':
     resolution: {integrity: sha512-AJxoUD2/15ESHbvpcyjU274nsAPLuOtPHCk0vKJM5pj//Fg/B1FXNWjPnXTT9PymCYYiHo4zPj0ZomXBKhoy7g==}
@@ -1304,14 +1315,17 @@ packages:
       csstype:
         optional: true
 
-  '@thebuilder/umbraco-docs@1.2.0':
-    resolution: {integrity: sha512-jXVB5LzEyoH49Db36Xd8Ak8du07bfUiSV/XVdwWpWbQqqmFrGk3I2r2g86xj+Lhf/WxqsxHav6q4rsDvmsOEhA==}
+  '@thebuilder/umbraco-docs@1.3.0':
+    resolution: {integrity: sha512-60DadXLkInM1mM+rpAfifausty8D53T0NQAgWPsK3OvradWpa7YnS0XidIWgIpz4BtXRWuOPb5aaDZv7NXSJgw==}
     engines: {node: '>=22.12'}
     hasBin: true
     peerDependencies:
       blume: '>=1.4.3 <3'
+      vgpu: ^0.6.0
     peerDependenciesMeta:
       blume:
+        optional: true
+      vgpu:
         optional: true
 
   '@tybys/wasm-util@0.10.4':
@@ -1532,6 +1546,26 @@ packages:
   '@vercel/routing-utils@6.6.0':
     resolution: {integrity: sha512-Z74zwk1ixcIsMN7Sp788SsZuOEqmJZ4N36WHusr6Vtck5eFAcjyD4oBpjDYRhkxovsh8t13s0L+uVbJYxUPa5w==}
 
+  '@vgpu/adapter-mock@0.6.0':
+    resolution: {integrity: sha512-xLzDbi0satAaY1z8a+9mVLBX5XXsoaGFiyPqR+T/QWKTXeYWLKloMHzJ2eIhHWeGEJJmpqhpYM/TMssjZjXbNA==}
+
+  '@vgpu/adapter-node@0.6.0':
+    resolution: {integrity: sha512-A/ZvkZV+vWMQOtaKyK+G2VlYWMwr7hce2AlpnkVouLKfsJ3TR+VeIKZC/OXgDYtEQ6fANmHEmHuTFge5kjSyaA==}
+
+  '@vgpu/core@0.6.0':
+    resolution: {integrity: sha512-0ihBJl1kiFl5sBidv4dmoDepR7TCCaeSxy+EzJWz8zX/C4lw4jDGsN/ThgO/p79QGRUgRSW5J21erG2a6AtuWg==}
+
+  '@vgpu/wgsl-std@0.6.0':
+    resolution: {integrity: sha512-C2C52G40p+54FKPAVzaXlffi4hLKK5xViTuINVH/CfBWb70qOL2WJ7cBiEpY5guvXAWHCJ1wyg+n6RSy92XnsA==}
+
+  '@vgpu/wgsl@0.6.0':
+    resolution: {integrity: sha512-/TlncdEz8hS5JvUI4lKDOK4irYgnfWrrox9sspc5Kt8xl6E3nqHjWfJw9iaAT9nDir8RuzPUNSxrCV8t3IDNmw==}
+    peerDependencies:
+      '@vgpu/adapter-node': '>=0.1.6 <1.0.0 || ^0.5.0-rc.0 || ^0.6.0-rc.0'
+    peerDependenciesMeta:
+      '@vgpu/adapter-node':
+        optional: true
+
   '@vitejs/plugin-react@6.1.1':
     resolution: {integrity: sha512-yxLaQV9gkhS8ezJqCM6+ndU7mDY6gqAg75NQ+0IjwEI8IYOmQCgkRwHKVSfWXW076DsqMo0Dk+0FK1U+M5RgFw==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -1573,6 +1607,9 @@ packages:
 
   '@vscode/l10n@0.0.18':
     resolution: {integrity: sha512-KYSIHVmslkaCDyw013pphY+d7x1qV8IZupYfeIfzNA+nsaWHbn5uPuQRvdRFsa9zFzGeudPuoGoZ1Op4jrJXIQ==}
+
+  '@webgpu/types@0.1.74':
+    resolution: {integrity: sha512-lgiI4hbuLcI9unnm2cL/tvCaQU45dp0xcLWJh5uB/9MBGvIA4F8XIk7nSiBeg+K4xWGYwgZKn80LmERI5CxoTA==}
 
   '@workflow/serde@4.1.0':
     resolution: {integrity: sha512-pav4F2BoirECWR7Nf1TKt+2eETcBj7jj4cBefQ8VXQCA6NPkaKeLfj/zMgi+3zYV5ZIBT4GuUiphsj0/b9hPQQ==}
@@ -3218,9 +3255,17 @@ packages:
     resolution: {integrity: sha512-TfySrs/5nm8fQJDcBDuUng3VOUKsd7S+zqvbOTiGXHfxX4wK31ard+hoNuvkicM/2YFzlpDgABOevKSsB4G/FA==}
     engines: {node: '>= 6'}
 
+  pixelmatch@7.2.0:
+    resolution: {integrity: sha512-xhcb4yHu9sM/G7foGzoLtXYcC0zHEaOXXjRKhGup0fw78Nf2Tkiapv4EQyMzrbcmQPsllAI7DbFY2UT7PlI9Pg==}
+    hasBin: true
+
   pkce-challenge@5.0.1:
     resolution: {integrity: sha512-wQ0b/W4Fr01qtpHlqSqspcj3EhBvimsdh0KlHhH8HRZnMsEa0ea2fTULOXOS9ccQr3om+GcGRk4e+isrZWV8qQ==}
     engines: {node: '>=16.20.0'}
+
+  pngjs@7.0.0:
+    resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
+    engines: {node: '>=14.19.0'}
 
   points-on-curve@0.2.0:
     resolution: {integrity: sha512-0mYKnYYe9ZcqMCWhUjItv/oHjvgEsfKvnUTg8sAtnHr3GVy7rGkXCb6d5cSyqrWqL4k81b9CPg3urd+T7aop3A==}
@@ -3748,6 +3793,15 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
+  vgpu@0.6.0:
+    resolution: {integrity: sha512-st7Sc40nNnRHoWFguP7sGOeziLtO/bF+YL/Tn1fn2h9cGmSpWq4gxEQp0/T6Z7Xz3zH66ZS3qBp+ZLMBrUSxug==}
+    hasBin: true
+    peerDependencies:
+      three: '>=0.180.0 <0.200.0'
+    peerDependenciesMeta:
+      three:
+        optional: true
+
   vite@8.3.4:
     resolution: {integrity: sha512-IftLE8phJhdNRIGNEV4JCCvfNScoZQVfcXaN8TQropWGJtOHcu+iAB9pHcuGvmEb/kddw0LBe/jS8ztdC6xdiQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -3901,8 +3955,14 @@ packages:
   vscode-uri@3.2.0:
     resolution: {integrity: sha512-m2gXo3bn0G1kT9InzMf07fTbqMbGtyckj3bH5ktLO+1Ssv+yiATZ4dhwaQv9UZWxJh6E9IFGnQyjgWVDWVBDrg==}
 
+  webgpu@0.4.0:
+    resolution: {integrity: sha512-F5pimn3Aoi0zWjuRdiVs5TnrUwSzD2lESBohsIUsqyitWkGRQlXU2fhV6ycXlQTa1bvAf3sjqiUpBEpmSQ5ptA==}
+
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
+
+  wgpu-matrix@3.4.2:
+    resolution: {integrity: sha512-IfZFbG7olEYBD76VCZy2TzqM57GKy3LT++AZh37tMHPPByO6R2h61zXGBZFNPi2IzxNivNi8y5dvze5PjaczjA==}
 
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
@@ -4606,6 +4666,10 @@ snapshots:
     dependencies:
       '@chevrotain/types': 13.2.0
 
+  '@modelcontextprotocol/core@2.0.0':
+    dependencies:
+      zod: 4.6.7
+
   '@modelcontextprotocol/sdk@1.32.1(zod@4.6.7)':
     dependencies:
       '@hono/node-server': 2.1.5(hono@4.13.13)
@@ -4627,6 +4691,11 @@ snapshots:
       zod-to-json-schema: 3.25.2(zod@4.6.7)
     transitivePeerDependencies:
       - supports-color
+
+  '@modelcontextprotocol/server@2.0.0':
+    dependencies:
+      '@modelcontextprotocol/core': 2.0.0
+      zod: 4.6.7
 
   '@napi-rs/wasm-runtime@1.2.4(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)':
     dependencies:
@@ -5065,12 +5134,13 @@ snapshots:
       - preact
       - react
 
-  '@thebuilder/umbraco-docs@1.2.0(@types/node@26.6.5)(blume@2.2.3(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@vercel/functions@3.9.11)(csstype@3.2.3)(prettier@3.9.10)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1))':
+  '@thebuilder/umbraco-docs@1.3.0(@types/node@26.6.5)(blume@2.2.3(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@vercel/functions@3.9.11)(csstype@3.2.3)(prettier@3.9.10)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1))(vgpu@0.6.0)':
     dependencies:
       gray-matter: 4.0.3
       sharp: 0.35.3(@types/node@26.6.5)
     optionalDependencies:
       blume: 2.2.3(@emnapi/runtime@1.11.3)(@shikijs/themes@4.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@vercel/functions@3.9.11)(csstype@3.2.3)(prettier@3.9.10)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(yaml@2.9.1)
+      vgpu: 0.6.0
     transitivePeerDependencies:
       - '@types/node'
 
@@ -5309,6 +5379,33 @@ snapshots:
     optionalDependencies:
       ajv: 6.15.0
 
+  '@vgpu/adapter-mock@0.6.0(@vgpu/adapter-node@0.6.0)':
+    dependencies:
+      '@vgpu/core': 0.6.0(@vgpu/adapter-node@0.6.0)
+    transitivePeerDependencies:
+      - '@vgpu/adapter-node'
+
+  '@vgpu/adapter-node@0.6.0':
+    dependencies:
+      '@vgpu/core': 0.6.0(@vgpu/adapter-node@0.6.0)
+      webgpu: 0.4.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@vgpu/core@0.6.0(@vgpu/adapter-node@0.6.0)':
+    dependencies:
+      '@vgpu/wgsl': 0.6.0(@vgpu/adapter-node@0.6.0)
+    transitivePeerDependencies:
+      - '@vgpu/adapter-node'
+
+  '@vgpu/wgsl-std@0.6.0': {}
+
+  '@vgpu/wgsl@0.6.0(@vgpu/adapter-node@0.6.0)':
+    dependencies:
+      '@vgpu/wgsl-std': 0.6.0
+    optionalDependencies:
+      '@vgpu/adapter-node': 0.6.0
+
   '@vitejs/plugin-react@6.1.1(oxc-transform-react@0.145.0)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
@@ -5365,6 +5462,8 @@ snapshots:
       vscode-uri: 3.2.0
 
   '@vscode/l10n@0.0.18': {}
+
+  '@webgpu/types@0.1.74': {}
 
   '@workflow/serde@4.1.0': {}
 
@@ -7282,7 +7381,13 @@ snapshots:
 
   pirates@4.0.7: {}
 
+  pixelmatch@7.2.0:
+    dependencies:
+      pngjs: 7.0.0
+
   pkce-challenge@5.0.1: {}
+
+  pngjs@7.0.0: {}
 
   points-on-curve@0.2.0: {}
 
@@ -7888,6 +7993,22 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
+  vgpu@0.6.0:
+    dependencies:
+      '@modelcontextprotocol/server': 2.0.0
+      '@vgpu/adapter-mock': 0.6.0(@vgpu/adapter-node@0.6.0)
+      '@vgpu/adapter-node': 0.6.0
+      '@vgpu/core': 0.6.0(@vgpu/adapter-node@0.6.0)
+      '@vgpu/wgsl': 0.6.0(@vgpu/adapter-node@0.6.0)
+      '@vgpu/wgsl-std': 0.6.0
+      '@webgpu/types': 0.1.74
+      pixelmatch: 7.2.0
+      pngjs: 7.0.0
+      wgpu-matrix: 3.4.2
+      zod: 4.6.7
+    transitivePeerDependencies:
+      - supports-color
+
   vite@8.3.4(@types/node@22.20.5)(jiti@2.7.0)(yaml@2.9.1):
     dependencies:
       lightningcss: 1.33.0
@@ -8024,7 +8145,16 @@ snapshots:
 
   vscode-uri@3.2.0: {}
 
+  webgpu@0.4.0:
+    dependencies:
+      '@webgpu/types': 0.1.74
+      debug: 4.4.3
+    transitivePeerDependencies:
+      - supports-color
+
   webidl-conversions@3.0.1: {}
+
+  wgpu-matrix@3.4.2: {}
 
   whatwg-url@5.0.0:
     dependencies:

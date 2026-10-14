@@ -3,7 +3,8 @@
 import PageLayout from "blume/components/layout/PageLayout.astro";
 import data from "blume:data";
 import { loadUmbracoPackages } from "@thebuilder/umbraco-docs";
-import { EcosystemSection, InstallCommand, LandingRoot } from "@thebuilder/umbraco-docs/astro";
+import { EcosystemSection, InstallCommand, LandingHero, LandingRoot } from "@thebuilder/umbraco-docs/astro";
+import HeroParticles from "@thebuilder/umbraco-docs/components/HeroParticles";
 
 import "./_home/home.css";
 
@@ -63,27 +64,19 @@ const features = [
   }}
 >
   <LandingRoot class="home">
-    <section class="hero">
-      <div class="hero__glow" aria-hidden="true"></div>
-      <div class="shell hero__inner">
-        <img class="hero__mark reveal" src="/logo-mark.svg" width="72" height="72" alt="API OIDC" style="--i: 0" decoding="async" />
-        <p class="eyebrow reveal" style="--i: 1">Workload identity for the Umbraco Delivery API</p>
-        <h1 class="hero__title reveal" style="--i: 2">
-          Your platform's token, <span>instead of a shared API key.</span>
-        </h1>
-        <p class="hero__lede reveal" style="--i: 3">
-          Vercel, GitHub Actions, Google Cloud, AWS and GitLab give each workload a short-lived, signed token. Umbraco accepts it on the Delivery API and on the endpoints you choose.
-        </p>
-        <div class="hero__actions reveal" style="--i: 4">
-          <a class="button button--primary" href="/quickstart">Get started</a>
-          <a class="button button--secondary" href={repoUrl} rel="noopener">View on GitHub</a>
-        </div>
-        <div class="install-shell reveal" style="--i: 5">
-          <InstallCommand command={installCommand} />
-        </div>
-        <p class="hero__compat reveal" style="--i: 6">Umbraco CMS 17.1 or later · .NET 10</p>
-      </div>
-    </section>
+    <LandingHero
+      title="Your platform's token,"
+      accent="instead of a shared API key."
+      description="Vercel, GitHub Actions, Google Cloud, AWS and GitLab give each workload a short-lived, signed token. Umbraco accepts it on the Delivery API and on the endpoints you choose."
+      compatibility="Umbraco CMS 17.1 or later · .NET 10"
+    >
+      <HeroParticles slot="background" logo="/logo-mark.svg" />
+      <Fragment slot="actions">
+        <a class="button button--primary" href="/quickstart">Get started</a>
+        <a class="button button--secondary" href={repoUrl} rel="noopener">View on GitHub</a>
+      </Fragment>
+      <InstallCommand slot="install" command={installCommand} />
+    </LandingHero>
 
     <section class="shell trust reveal">
       <p><strong>A token only adds a way in.</strong> A request without one, or with a refused one, gets the same answer from Umbraco as it does today.</p>
