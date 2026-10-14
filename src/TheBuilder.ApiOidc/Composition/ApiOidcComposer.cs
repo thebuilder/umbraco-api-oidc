@@ -27,6 +27,7 @@ public sealed class ApiOidcComposer : IComposer
     {
         AddServices(builder.Services, builder.Config);
         builder.AddNotificationHandler<UmbracoApplicationStartedNotification, AccessServiceRegistrationCheck>();
+        builder.AddNotificationHandler<UmbracoApplicationStartedNotification, ProtectedEndpointsReport>();
     }
 
     internal static void AddServices(IServiceCollection services, IConfiguration configuration)

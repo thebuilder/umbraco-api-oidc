@@ -90,6 +90,9 @@ served when `PublicAccess` is on, or the request carries a valid API key or a tr
 - Umbraco's own Delivery API endpoints are left to Umbraco, so preview and member authorization work as
   before.
 - An endpoint marked `[AllowAnonymous]` stays open.
+- To turn this off, set `"ProtectCustomDeliveryApiEndpoints": false` in the `ApiOidc` section.
+- At startup, the log lists every endpoint that gets the check, such as
+  `GET /umbraco/delivery/api/v1/dictionary`.
 - Endpoints outside `/umbraco/delivery/api` are not touched. Protect those with `[RequireOidcToken]`, below.
 
 ## Protecting your own endpoints
@@ -244,6 +247,7 @@ your audience, and require the project path:
 | Setting      | Default        | What it does |
 | ------------ | -------------- | ------------ |
 | `HeaderName` | `X-Oidc-Token` | The header that carries the token. A `Bearer ` prefix is accepted. |
+| `ProtectCustomDeliveryApiEndpoints` | `true` | Whether [custom endpoints under the Delivery API](#custom-endpoints-under-the-delivery-api) get its access check. |
 | `ClockSkew`  | `00:01:00`     | How far token lifetimes may disagree with the server clock. |
 
 The site refuses to start if an issuer is missing what it needs, so a typo cannot quietly let everyone in.

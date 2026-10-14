@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Reflection.Emit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -6,7 +7,6 @@ using TheBuilder.ApiOidc.Configuration;
 using TheBuilder.ApiOidc.DeliveryApi;
 using TheBuilder.ApiOidc.Tokens;
 using Umbraco.Cms.Core.Configuration.Models;
-using Umbraco.Cms.Core.DeliveryApi;
 
 namespace TheBuilder.ApiOidc.Tests;
 
@@ -40,6 +40,12 @@ public sealed class DeliveryApiEndpointGateTests
     }
 
     private static ControllerActionDescriptor ControllerFrom(Type type) => new() { ControllerTypeInfo = type.GetTypeInfo() };
+
+    private static Type TypeFromAssembly(string assemblyName) =>
+        AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.Run)
+            .DefineDynamicModule(assemblyName)
+            .DefineType("TestController", TypeAttributes.Public)
+            .CreateType();
 
     [Fact]
     public async Task Refuses_a_custom_endpoint_without_credentials()
@@ -82,7 +88,25 @@ public sealed class DeliveryApiEndpointGateTests
     public async Task Leaves_umbracos_own_endpoints_to_umbraco()
     {
         // Umbraco checks preview and member access on its own controllers, so the gate stays out of the way.
-        await Send(DictionaryPath, ControllerFrom(typeof(IApiAccessService)));
+        await Send("/umbraco/delivery/api/v1/security/member/authorize", ControllerFrom(TypeFromAssembly("Umbraco.Cms.Api.Delivery")));
+
+        Assert.True(_nextCalled);
+    }
+
+    [Fact]
+    public async Task Gates_a_community_package_with_an_umbraco_prefixed_name()
+    {
+        Assert.Equal(
+            StatusCodes.Status401Unauthorized,
+            await Send(DictionaryPath, ControllerFrom(TypeFromAssembly("Umbraco.Community.DictionaryApi"))));
+    }
+
+    [Fact]
+    public async Task Can_be_turned_off()
+    {
+        _options.ProtectCustomDeliveryApiEndpoints = false;
+
+        await Send();
 
         Assert.True(_nextCalled);
     }

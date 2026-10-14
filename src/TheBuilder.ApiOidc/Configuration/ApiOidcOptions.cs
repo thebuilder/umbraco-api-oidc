@@ -18,6 +18,12 @@ public sealed class ApiOidcOptions
     /// </summary>
     public string HeaderName { get; set; } = "X-Oidc-Token";
 
+    /// <summary>
+    ///     Whether endpoints that other packages or the site add under <c>/umbraco/delivery/api</c> get the Delivery
+    ///     API's access check. Umbraco's own Delivery API endpoints are never affected.
+    /// </summary>
+    public bool ProtectCustomDeliveryApiEndpoints { get; set; } = true;
+
     /// <summary>How far a token's lifetime may disagree with this server's clock.</summary>
     public TimeSpan ClockSkew { get; set; } = TimeSpan.FromMinutes(1);
 }
