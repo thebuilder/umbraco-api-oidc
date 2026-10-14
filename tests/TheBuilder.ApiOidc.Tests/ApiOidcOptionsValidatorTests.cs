@@ -22,15 +22,6 @@ public sealed class ApiOidcOptionsValidatorTests
         Assert.False(IsValid(new TrustedIssuerOptions { Preset = IssuerPreset.Vercel, Team = "vercel.com/acme", Projects = ["acme-web"] }));
 
     [Fact]
-    public void Requires_a_github_audience()
-    {
-        var github = FakeIssuers.GitHub();
-        github.Audience = null;
-
-        Assert.False(IsValid(github));
-    }
-
-    [Fact]
     public void Requires_a_github_owner()
     {
         var github = FakeIssuers.GitHub();

@@ -56,8 +56,9 @@ internal static class TrustedIssuerResolver
 
             case IssuerPreset.GitHubActions:
                 issuer = Constants.GitHubActions.Issuer;
+                // GitHub's own default, which core.getIDToken() asks for when it is given no audience.
                 if (string.IsNullOrWhiteSpace(audience))
-                    failures.Add($"{path}:Audience is required for GitHub Actions; pass the same value to core.getIDToken().");
+                    audience = $"https://github.com/{options.Owner}";
                 if (string.IsNullOrWhiteSpace(options.Owner) || options.Owner.Any(c => char.IsWhiteSpace(c) || c == '/'))
                     failures.Add($"{path}:Owner must be the GitHub user or organization, such as \"acme\".");
                 else if (options.Repositories.Any(repository => !string.IsNullOrWhiteSpace(repository) &&

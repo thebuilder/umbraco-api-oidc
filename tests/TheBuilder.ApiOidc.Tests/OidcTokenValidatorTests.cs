@@ -212,9 +212,19 @@ public sealed class OidcTokenValidatorTests
     }
 
     [Fact]
-    public async Task Refuses_a_github_actions_token_with_githubs_default_audience()
+    public async Task Refuses_githubs_default_audience_when_an_audience_is_set()
     {
         Assert.False((await Validate(_issuers.GitHubToken(audience: "https://github.com/acme"), FakeIssuers.GitHub())).IsValid);
+    }
+
+    [Fact]
+    public async Task Defaults_to_githubs_own_audience()
+    {
+        var github = FakeIssuers.GitHub();
+        github.Audience = null;
+
+        Assert.True((await Validate(_issuers.GitHubToken(audience: "https://github.com/acme"), github)).IsValid);
+        Assert.False((await Validate(_issuers.GitHubToken(audience: "https://cms.example.com"), github)).IsValid);
     }
 
     [Theory]
