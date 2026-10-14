@@ -101,19 +101,10 @@ public sealed class EndpointProtectionTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Refuses_an_issuer_the_endpoint_does_not_accept()
+    public async Task Accepts_only_the_issuers_the_endpoint_names()
     {
-        var response = await Get("/deploy-only", _issuers.VercelToken());
-
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task Serves_an_issuer_the_endpoint_accepts()
-    {
-        var response = await Get("/deploy-only", _issuers.GitHubToken());
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await Get("/deploy-only", _issuers.VercelToken())).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await Get("/deploy-only", _issuers.GitHubToken())).StatusCode);
     }
 
     [Fact]

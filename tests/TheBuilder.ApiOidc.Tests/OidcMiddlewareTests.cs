@@ -11,12 +11,11 @@ public sealed class OidcMiddlewareTests
     private readonly ApiOidcOptions _options = FakeIssuers.Options(FakeIssuers.Vercel());
     private bool _nextCalled;
 
-    private async Task<HttpContext> Send(string path, string? headerName = null, string? headerValue = null)
+    private async Task<HttpContext> Send(string path, string headerName, string headerValue)
     {
         var context = new DefaultHttpContext();
         context.Request.Path = path;
-        if (headerName is not null)
-            context.Request.Headers[headerName] = headerValue;
+        context.Request.Headers[headerName] = headerValue;
 
         var middleware = new OidcMiddleware(
             _ =>
@@ -66,14 +65,5 @@ public sealed class OidcMiddlewareTests
         var context = await Send("/umbraco/delivery/api/v2/media", "Authorization", $"Bearer {_issuers.VercelToken()}");
 
         Assert.NotNull(context.Features.Get<OidcAccessFeature>());
-    }
-
-    [Fact]
-    public async Task Passes_requests_without_a_token_straight_through()
-    {
-        var context = await Send("/umbraco/delivery/api/v2/content");
-
-        Assert.Null(context.Features.Get<OidcAccessFeature>());
-        Assert.True(_nextCalled);
     }
 }

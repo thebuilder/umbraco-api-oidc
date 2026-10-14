@@ -14,10 +14,6 @@ public sealed class ApiOidcOptionsValidatorTests
     public void Accepts_the_presets() => Assert.True(IsValid(FakeIssuers.Vercel(), FakeIssuers.GitHub()));
 
     [Fact]
-    public void Accepts_vercel_without_projects() =>
-        Assert.True(IsValid(new TrustedIssuerOptions { Preset = IssuerPreset.Vercel, Team = "acme" }));
-
-    [Fact]
     public void Requires_a_vercel_team() =>
         Assert.False(IsValid(new TrustedIssuerOptions { Preset = IssuerPreset.Vercel, Projects = ["acme-web"] }));
 

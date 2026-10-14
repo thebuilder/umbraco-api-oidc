@@ -1,8 +1,8 @@
 namespace TheBuilder.ApiOidc.Configuration;
 
 /// <summary>
-///     Which workloads may call the Delivery API, and endpoints that require a token, with an OIDC token. Bound
-///     from <c>ApiOidc</c>.
+///     Which workloads may use an OIDC token on the Delivery API and on endpoints that ask for one. Bound from
+///     <c>ApiOidc</c>.
 /// </summary>
 public sealed class ApiOidcOptions
 {

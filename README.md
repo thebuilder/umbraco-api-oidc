@@ -6,16 +6,16 @@ platform already gives them, instead of a shared API key.
 Umbraco protects a private Delivery API with one API key. Every frontend gets the same key, it lives in
 environment variables forever, and rotating it means touching every project at once. Most hosting and CI
 platforms now give each workload a short-lived, signed token that says who it is. This package teaches
-Umbraco to accept those tokens, on the Delivery API and on any endpoint you
-[protect with `[RequireOidcToken]`](#protecting-your-own-endpoints).
+Umbraco to accept those tokens, on the Delivery API and on
+[your own endpoints](#protecting-your-own-endpoints).
 
 - **No shared secret.** Tokens are signed by the platform and expire on their own. There is nothing to rotate.
 - **Scoped to exactly who you trust.** You list the Vercel teams or projects, GitHub repositories or other workloads
-  that may read content. A token from anyone else gets a `401`.
+  that may read content. A token from anyone else is refused.
 - **Drop-in.** Public access, media access and the API key keep working exactly as before, so you can move
   frontends over one at a time and remove the API key when the last one is done.
 
-The package requires Umbraco 17 or 18.
+The package requires Umbraco 17.1 or later, including 18.
 
 ## Which platforms work
 
@@ -113,8 +113,8 @@ Inside the endpoint, `User` carries the token's claims under their own names, su
 If you prefer plain ASP.NET Core authorization, the package also registers the authentication scheme
 `OidcAuthenticationDefaults.AuthenticationScheme` and the policy `OidcAuthenticationDefaults.Policy`, so
 `[Authorize(Policy = OidcAuthenticationDefaults.Policy)]` works too. Neither is a default, so the backoffice,
-members and every endpoint that does not ask for a token are unaffected. The API key is not accepted on
-these endpoints.
+members and every endpoint that does not ask for a token are unaffected. The API key is not accepted here;
+to accept it as well, use `[RequireDeliveryApiAccess]` below.
 
 ### Endpoints that belong with the Delivery API
 
@@ -123,6 +123,8 @@ a dictionary endpoint, is open to anyone, even under `/umbraco/delivery/api/`. T
 Umbraco's content endpoints, add `[RequireDeliveryApiAccess]` instead:
 
 ```csharp
+using TheBuilder.ApiOidc.Authentication;
+
 [ApiController]
 [Route("umbraco/delivery/api/v1/dictionary")]
 [RequireDeliveryApiAccess]
@@ -146,7 +148,7 @@ match an entry. Every entry accepts these settings:
 
 | Setting          | What it does |
 | ---------------- | ------------ |
-| `Name`           | A name for log messages and for `[RequireOidcToken(...)]`. Defaults to the preset or the issuer URL. |
+| `Name`           | A name for log messages and for `[RequireOidcToken(...)]`. Defaults to the preset name or the issuer URL. |
 | `Preset`         | `Vercel`, `GitHubActions`, or `Custom` (the default). |
 | `Audience`       | The `aud` the token must carry. |
 | `RequiredClaims` | Claims the token must carry, each with its allowed values. Added to the preset's own rules. |

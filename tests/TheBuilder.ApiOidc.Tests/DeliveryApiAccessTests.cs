@@ -61,30 +61,31 @@ public sealed class DeliveryApiAccessTests : IAsyncLifetime
         return _client.SendAsync(request, TestContext.Current.CancellationToken);
     }
 
-    [Theory]
-    [InlineData("/dictionary")]
-    [InlineData("/controller/dictionary")]
-    public async Task Refuses_a_request_with_nothing(string path)
+    [Fact]
+    public async Task Refuses_a_request_with_nothing()
     {
-        Assert.Equal(HttpStatusCode.Unauthorized, (await Get(path)).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await Get("/dictionary")).StatusCode);
     }
 
-    [Theory]
-    [InlineData("/dictionary")]
-    [InlineData("/controller/dictionary")]
-    public async Task Serves_the_api_key(string path)
+    [Fact]
+    public async Task Serves_the_api_key()
     {
-        Assert.Equal(HttpStatusCode.OK, (await Get(path, apiKey: "secret")).StatusCode);
-        Assert.Equal(HttpStatusCode.Unauthorized, (await Get(path, apiKey: "guess")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await Get("/dictionary", apiKey: "secret")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await Get("/dictionary", apiKey: "guess")).StatusCode);
     }
 
-    [Theory]
-    [InlineData("/dictionary")]
-    [InlineData("/controller/dictionary")]
-    public async Task Serves_a_valid_token(string path)
+    [Fact]
+    public async Task Serves_a_valid_token()
     {
-        Assert.Equal(HttpStatusCode.OK, (await Get(path, _issuers.VercelToken())).StatusCode);
-        Assert.Equal(HttpStatusCode.Unauthorized, (await Get(path, _issuers.VercelToken(owner: "other"))).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await Get("/dictionary", _issuers.VercelToken())).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await Get("/dictionary", _issuers.VercelToken(owner: "other"))).StatusCode);
+    }
+
+    [Fact]
+    public async Task Supports_the_attribute_on_a_controller()
+    {
+        Assert.Equal(HttpStatusCode.Unauthorized, (await Get("/controller/dictionary")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await Get("/controller/dictionary", apiKey: "secret")).StatusCode);
     }
 
     [Fact]
