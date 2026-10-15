@@ -5,6 +5,7 @@ import data from "blume:data";
 import { loadUmbracoPackages } from "@thebuilder/umbraco-docs";
 import { EcosystemSection, InstallCommand, LandingHero, LandingRoot } from "@thebuilder/umbraco-docs/astro";
 import HeroParticles from "@thebuilder/umbraco-docs/components/HeroParticles";
+import CodeBlock from "blume/components/content/CodeBlock.astro";
 
 import "./_home/home.css";
 
@@ -103,10 +104,9 @@ const features = [
         <p>Presets cover Vercel and GitHub Actions. Any other OIDC issuer needs its URL, an audience and the claims a token must carry.</p>
         <a class="text-link" href="/issuers">Set up your issuer <span aria-hidden="true">→</span></a>
       </div>
-      <figure class="code-preview reveal" style="--i: 1">
-        <figcaption>appsettings.json <span>JSON</span></figcaption>
-        <pre tabindex="0"><code>{configExample}</code></pre>
-      </figure>
+      <div class="code-preview reveal" style="--i: 1">
+        <CodeBlock lang="json" title="appsettings.json" code={configExample} />
+      </div>
     </section>
 
     <section class="shell api" aria-labelledby="api-title">
@@ -116,10 +116,9 @@ const features = [
         <p>The frontend asks its platform for a token and sends it as <code>X-Oidc-Token</code>. Your own endpoints can require the same token with an attribute.</p>
         <a class="button button--secondary" href="/custom-endpoints">Protect your own endpoints</a>
       </div>
-      <figure class="code-preview reveal" style="--i: 1">
-        <figcaption>A Vercel function <span>TypeScript</span></figcaption>
-        <pre tabindex="0"><code>{fetchExample}</code></pre>
-      </figure>
+      <div class="code-preview reveal" style="--i: 1">
+        <CodeBlock lang="ts" title="A Vercel function" code={fetchExample} />
+      </div>
     </section>
 
     <section class="shell closing reveal">
