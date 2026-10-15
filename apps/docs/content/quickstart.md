@@ -15,7 +15,7 @@ seo:
 
 3. List the issuers you trust:
 
-   ```json
+   ```json appsettings.json
    {
      "Umbraco": {
        "CMS": {
