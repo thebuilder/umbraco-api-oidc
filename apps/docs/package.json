@@ -16,7 +16,7 @@
     "vgpu": "^0.6.0"
   },
   "devDependencies": {
-    "@types/node": "^26.2.0",
-    "sharp": "^0.35.4"
+    "@types/node": "^26.6.5",
+    "sharp": "^0.35.5"
   }
 }
