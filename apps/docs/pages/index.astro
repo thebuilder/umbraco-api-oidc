@@ -65,6 +65,7 @@ const features = [
 >
   <LandingRoot class="home">
     <LandingHero
+      layout="split"
       title="Your platform's token,"
       accent="instead of a shared API key."
       description="Vercel, GitHub Actions, Google Cloud, AWS and GitLab give each workload a short-lived, signed token. Umbraco accepts it on the Delivery API and on the endpoints you choose."
@@ -77,10 +78,6 @@ const features = [
       </Fragment>
       <InstallCommand slot="install" command={installCommand} />
     </LandingHero>
-
-    <section class="shell trust reveal">
-      <p><strong>A token only adds a way in.</strong> A request without one, or with a refused one, gets the same answer from Umbraco as it does today.</p>
-    </section>
 
     <section class="shell section" aria-labelledby="features-title">
       <div class="section-heading reveal">
