@@ -17,7 +17,7 @@ those tokens.
 - Leaves public access, media access and the API key as they are, so frontends can move over one at a time.
 - Grants preview access to draft content, as the API key does, unless you turn it off per issuer.
 - Protects your own endpoints with `[RequireOidcToken]`, or with the Delivery API's own rules using
-  `[RequireDeliveryApiAccess]`.
+  `[RequireDeliveryApiAccess]`. `policy.RequireOidcToken()` adds the same check to a policy of your own.
 
 ## Install
 

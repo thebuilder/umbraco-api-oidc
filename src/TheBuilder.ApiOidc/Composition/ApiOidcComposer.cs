@@ -59,10 +59,7 @@ public sealed class ApiOidcComposer : IComposer
         services.AddTransient<IAuthorizationHandler, DeliveryApiAccessHandler>();
         services.AddAuthorization(authorization =>
         {
-            authorization.AddPolicy(
-                OidcAuthenticationDefaults.Policy,
-                policy => policy.AddAuthenticationSchemes(OidcAuthenticationDefaults.AuthenticationScheme)
-                    .AddRequirements(new OidcTokenRequirement([])));
+            authorization.AddPolicy(OidcAuthenticationDefaults.Policy, policy => policy.RequireOidcToken());
             // The OIDC scheme reads a token sent to any path, and answers a refused request with a 401 rather than
             // the backoffice's login redirect.
             authorization.AddPolicy(
