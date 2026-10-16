@@ -1,7 +1,17 @@
-# TheBuilder.ApiOidc
+<p align="center">
+  <img src="https://raw.githubusercontent.com/thebuilder/umbraco-api-oidc/refs/heads/main/apps/docs/public/logo-mark.svg" width="112" height="112" alt="API OIDC logo" />
+</p>
 
-Let your frontends call the Umbraco Delivery API, and your own API endpoints, with the OIDC token their
-platform already gives them, instead of a shared API key.
+<h1 align="center">API OIDC for Umbraco</h1>
+
+<p align="center">
+  Let your frontends call the Umbraco Delivery API, and your own API endpoints,<br />
+  with the OIDC token their platform already gives them, instead of a shared API key.
+</p>
+
+[![NuGet version](https://img.shields.io/nuget/v/TheBuilder.ApiOidc)](https://www.nuget.org/packages/TheBuilder.ApiOidc)
+[![NuGet downloads](https://img.shields.io/nuget/dt/TheBuilder.ApiOidc)](https://www.nuget.org/packages/TheBuilder.ApiOidc)
+[![License](https://img.shields.io/github/license/thebuilder/umbraco-api-oidc)](https://github.com/thebuilder/umbraco-api-oidc/blob/main/LICENSE)
 
 A private Delivery API is protected by a single API key. Every frontend shares it, and rotating it means
 updating every project at the same time. Most hosting and CI platforms can instead give each workload a
@@ -304,6 +314,15 @@ answers it as it would any request without credentials.
 On your own endpoints, an ASP.NET Core authentication handler does the same validation, and only for
 endpoints that require it.
 
+## Documentation
+
+The full documentation is at [api-oidc.thebuilder.dk](https://api-oidc.thebuilder.dk).
+
+- [Quickstart](https://api-oidc.thebuilder.dk/quickstart): install the package, trust your platform and send the first token.
+- [Issuers](https://api-oidc.thebuilder.dk/issuers): set up Vercel, GitHub Actions, Google Cloud, AWS, GitLab or any other issuer.
+- [Custom endpoints](https://api-oidc.thebuilder.dk/custom-endpoints): protect your own controllers and minimal APIs.
+- [Configuration](https://api-oidc.thebuilder.dk/configuration): the settings that apply to every issuer.
+
 ## Development
 
 ```sh
@@ -322,4 +341,4 @@ Umbraco Marketplace.
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).
