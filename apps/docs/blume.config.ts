@@ -1,5 +1,6 @@
 import { docsTheme } from "@thebuilder/umbraco-docs";
 import { defineConfig } from "blume";
+import { vercel } from "blume/analytics";
 import { custom, filesystem } from "blume/sources";
 import { githubReleaseChangelogSource } from "./sources/github-releases";
 import { apiOidcPackage } from "./umbraco-package";
@@ -44,6 +45,7 @@ export default defineConfig({
     // Disable Blume's generated /og routes so it cannot overwrite them.
     og: { enabled: false },
   },
+  analytics: [vercel()],
   // The docs family's shared accent and fonts, so every package site looks alike.
   theme: { ...docsTheme },
   agents: {
