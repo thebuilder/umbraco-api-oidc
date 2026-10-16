@@ -20,6 +20,9 @@ namespace TheBuilder.ApiOidc.Tests;
 
 public sealed class EndpointProtectionTests : IAsyncLifetime
 {
+    // A policy the site registers under a name another package looks up.
+    private const string OwnPolicy = "Site.DeploymentSync";
+
     private readonly FakeIssuers _issuers = new();
     private WebApplication _app = null!;
     private HttpClient _client = null!;
@@ -44,6 +47,7 @@ public sealed class EndpointProtectionTests : IAsyncLifetime
         builder.Services.AddSingleton<IIssuerConfigurationProvider>(_issuers);
         builder.Services.AddAuthentication()
             .AddScheme<AuthenticationSchemeOptions, AlwaysSignedInHandler>(AlwaysSignedInHandler.SchemeName, null);
+        builder.Services.AddAuthorization(options => options.AddPolicy(OwnPolicy, policy => policy.RequireOidcToken("deploy")));
         builder.Services.AddControllers().AddApplicationPart(typeof(EndpointProtectionTests).Assembly);
 
         _app = builder.Build();
@@ -57,6 +61,10 @@ public sealed class EndpointProtectionTests : IAsyncLifetime
         _app.MapGet("/stacked", () => "stacked")
             .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = AlwaysSignedInHandler.SchemeName })
             .RequireOidcToken("deploy");
+        _app.MapGet("/own-policy", () => "own").RequireAuthorization(OwnPolicy);
+        _app.MapGet("/own-policy-stacked", () => "own")
+            .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = AlwaysSignedInHandler.SchemeName })
+            .RequireAuthorization(OwnPolicy);
         _app.MapControllers();
         await _app.StartAsync(TestContext.Current.CancellationToken);
         _client = _app.GetTestClient();
@@ -113,6 +121,21 @@ public sealed class EndpointProtectionTests : IAsyncLifetime
     {
         Assert.Equal(HttpStatusCode.Unauthorized, (await Get("/policy")).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await Get("/policy", _issuers.GitHubToken())).StatusCode);
+    }
+
+    [Fact]
+    public async Task Supports_a_policy_of_your_own()
+    {
+        Assert.Equal(HttpStatusCode.Unauthorized, (await Get("/own-policy")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await Get("/own-policy", _issuers.VercelToken())).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await Get("/own-policy", _issuers.GitHubToken())).StatusCode);
+    }
+
+    [Fact]
+    public async Task A_policy_of_your_own_is_not_satisfied_by_another_scheme()
+    {
+        Assert.Equal(HttpStatusCode.Forbidden, (await Get("/own-policy-stacked")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await Get("/own-policy-stacked", _issuers.GitHubToken())).StatusCode);
     }
 
     [Fact]

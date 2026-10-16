@@ -32,6 +32,20 @@ Inside the endpoint, `User` carries the token's claims under their own names, su
 
 If you prefer plain ASP.NET Core authorization, the package also registers the authentication scheme `OidcAuthenticationDefaults.AuthenticationScheme` and the policy `OidcAuthenticationDefaults.Policy`, so `[Authorize(Policy = OidcAuthenticationDefaults.Policy)]` works too. Neither is a default, so the backoffice, members and every endpoint that does not ask for a token are unaffected. The API key is not accepted here; to accept it as well, use `[RequireDeliveryApiAccess]` below.
 
+## A policy under your own name
+
+Some packages leave access to their own endpoints to the site. Such a package looks up an authorization policy by a name it defines, and the site registers that name. To make that policy require a token, call `RequireOidcToken()` on the policy builder. For example, for a package whose deployment endpoint looks up `Acme.DeploymentSync`:
+
+```csharp
+using TheBuilder.ApiOidc.Authentication;
+
+builder.Services.AddAuthorization(options => options.AddPolicy(
+    "Acme.DeploymentSync",
+    policy => policy.RequireOidcToken("GitHubActions")));
+```
+
+The policy then checks the same as `[RequireOidcToken("GitHubActions")]`: only a token from that issuer gets in, and a cookie or another scheme does not count. Leave out the issuers to accept any trusted issuer. The other package does not need to know about this one.
+
 ## Endpoints that belong with the Delivery API
 
 Umbraco only checks access on its own Delivery API endpoints. A custom endpoint you add beside them, such as a dictionary endpoint, is open to anyone, even under `/umbraco/delivery/api/`. To give it the same rules as Umbraco's content endpoints, add `[RequireDeliveryApiAccess]` instead:
