@@ -125,25 +125,6 @@ If you prefer plain ASP.NET Core authorization, the package also registers the a
 members and every endpoint that does not ask for a token are unaffected. The API key is not accepted here;
 to accept it as well, use `[RequireDeliveryApiAccess]` below.
 
-### A policy under your own name
-
-Some packages leave access to their own endpoints to the site. Such a package looks up an authorization
-policy by a name it defines, and the site registers that name. To make that policy require a token, call
-`RequireOidcToken()` on the policy builder. For example, for a package whose deployment endpoint looks up
-`Acme.DeploymentSync`:
-
-```csharp
-using TheBuilder.ApiOidc.Authentication;
-
-builder.Services.AddAuthorization(options => options.AddPolicy(
-    "Acme.DeploymentSync",
-    policy => policy.RequireOidcToken("GitHubActions")));
-```
-
-The policy then checks the same as `[RequireOidcToken("GitHubActions")]`: only a token from that issuer gets
-in, and a cookie or another scheme does not count. Leave out the issuers to accept any trusted issuer. The
-other package does not need to know about this one.
-
 ### Endpoints that belong with the Delivery API
 
 Umbraco only checks access on its own Delivery API endpoints. A custom endpoint you add beside them, such as
@@ -168,6 +149,25 @@ For a minimal API, call `RequireDeliveryApiAccess()`. The endpoint then serves e
 the same as Umbraco's content endpoints. Requests without access get a `401`, and nothing gets in while the
 Delivery API is disabled. The policy is also available as
 `OidcAuthenticationDefaults.DeliveryApiAccessPolicy`.
+
+### A policy under your own name
+
+Some packages leave access to their own endpoints to the site. Such a package looks up an authorization
+policy by a name it defines, and the site registers that name. To make that policy require a token, call
+`RequireOidcToken()` on the policy builder. For example, for a package whose deployment endpoint looks up
+`Acme.DeploymentSync`:
+
+```csharp
+using TheBuilder.ApiOidc.Authentication;
+
+builder.Services.AddAuthorization(options => options.AddPolicy(
+    "Acme.DeploymentSync",
+    policy => policy.RequireOidcToken("GitHubActions")));
+```
+
+The policy then checks the same as `[RequireOidcToken("GitHubActions")]`: only a token from that issuer gets
+in, and a cookie or another scheme does not count. Leave out the issuers to accept any trusted issuer. The
+other package does not need to know about this one.
 
 ## Issuers
 

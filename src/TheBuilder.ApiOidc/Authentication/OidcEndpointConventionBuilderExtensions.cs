@@ -14,7 +14,7 @@ public static class OidcEndpointConventionBuilderExtensions
     /// <param name="issuers">The <c>Name</c>s of the trusted issuers to accept. Leave it empty to accept any.</param>
     public static TBuilder RequireOidcToken<TBuilder>(this TBuilder builder, params string[] issuers)
         where TBuilder : IEndpointConventionBuilder =>
-        builder.RequireAuthorization(policy => policy.RequireOidcToken(issuers));
+        builder.RequireAuthorization(new RequireOidcTokenAttribute(issuers));
 
     /// <summary>
     ///     Requires the same access as the Delivery API's content endpoints, the same as
