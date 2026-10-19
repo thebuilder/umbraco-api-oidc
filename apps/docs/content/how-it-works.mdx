@@ -5,6 +5,30 @@ seo:
   image: /og/how-it-works.png
 ---
 
+```mermaid
+---
+config:
+  sequence:
+    mirrorActors: false
+---
+sequenceDiagram
+    participant F as Frontend
+    participant P as Platform
+    participant M as API OIDC
+    participant U as Umbraco
+    F->>P: Ask for a token
+    P-->>F: Signed token
+    F->>M: Delivery API request with X-Oidc-Token
+    M->>P: Fetch signing keys (once, then cached)
+    Note over M: Check signature, audience,<br/>lifetime and required claims
+    M->>U: Pass the request on, token marked valid or not
+    alt Valid token, API key or public access
+        U-->>F: Content
+    else None of these
+        U-->>F: 401, as for any request without credentials
+    end
+```
+
 1. A middleware runs at the start of Umbraco's pipeline. For requests under `/umbraco/delivery/api` that carry the header, it finds the trusted issuers matching the token's `iss`, and validates the signature against the keys that issuer publishes. Then it checks the audience, the lifetime and the claims the issuer entry requires.
 2. The package replaces Umbraco's `IApiAccessService` with one that grants access when step 1 found a valid token, and otherwise applies Umbraco's own rules unchanged.
 

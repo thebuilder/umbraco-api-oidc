@@ -5,6 +5,16 @@ seo:
   image: /og/custom-endpoints.png
 ---
 
+There are three ways to protect an endpoint, depending on who should reach it:
+
+```mermaid
+flowchart TD
+    Q{Who should reach it?}
+    Q -->|Only workloads with a token| A["[RequireOidcToken]"]
+    Q -->|Delivery API callers| B["[RequireDeliveryApiAccess]"]
+    Q -->|Another package's policy| C["policy.RequireOidcToken()"]
+```
+
 The same tokens can protect your own API controllers and minimal APIs, such as a search endpoint that only your frontend should call. Add `[RequireOidcToken]` to a controller or action, or call `RequireOidcToken()` on a minimal API:
 
 <CodeGroup>
