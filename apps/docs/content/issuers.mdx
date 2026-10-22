@@ -28,8 +28,24 @@ See Vercel's [OIDC federation docs](https://vercel.com/docs/oidc) for how tokens
 - `Projects` limits access to some of the team's projects, by name or id, such as `["acme-web", "prj_123"]`. Leave it out to accept every project in the team.
 - `Environments` defaults to `production` and `preview`. To let local machines in as well, add `development`: `"Environments": ["production", "preview", "development"]`. The `development` token is the one `vercel env pull` writes for local work, and anyone on the team can pull it.
 - `IssuerMode` is `Team` (the default) or `Global`, matching your team's OIDC settings on Vercel.
-- `Audience` defaults to `https://vercel.com/{team}`, which is what `getVercelOidcToken()` returns.
+- `Audience` defaults to `https://vercel.com/{team}`, which is what `getVercelOidcToken()` returns. To give your CMS an audience of its own, see [Your own audience](#your-own-audience).
 - Builds get a token too, through `VERCEL_OIDC_TOKEN`, so static generation works.
+
+### Your own audience
+
+With the default audience, a token your frontend sends to another service that accepts it would also work on your CMS, and the other way round. Vercel can [exchange the token](https://vercel.com/changelog/custom-oidc-token-audiences) for one made for a single service. Pick an audience, such as `"https://cms.example.com"`, and set it on the entry:
+
+```json
+{ "Preset": "Vercel", "Team": "acme", "Audience": "https://cms.example.com" }
+```
+
+Then ask for the same value in the frontend:
+
+```ts
+const token = await getVercelOidcToken({ audience: 'https://cms.example.com' });
+```
+
+The exchanged token keeps the project, environment and team claims, so `Projects` and `Environments` work as before. It is always issued by the team's own issuer, so leave `IssuerMode` at `Team`.
 
 ## GitHub Actions
 

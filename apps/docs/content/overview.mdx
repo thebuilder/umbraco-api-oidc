@@ -13,6 +13,10 @@ A private Delivery API is protected by a single API key. Every frontend shares i
 - You choose which Vercel teams or projects, GitHub repositories or other workloads are allowed. Tokens from anywhere else are refused.
 - Public access, media access and the API key work as before, so you can move frontends over one at a time and remove the key after the last one.
 
+:::note
+Vercel is moving its own services and its Marketplace off long-lived keys, as its post [Death to long-lived static credentials](https://vercel.com/blog/death-to-long-lived-static-credentials) explains. This package does the same for Umbraco: a Vercel frontend calls the Delivery API with the token it already has.
+:::
+
 ## Supported platforms
 
 | Platform | How the frontend gets a token | Setup |
