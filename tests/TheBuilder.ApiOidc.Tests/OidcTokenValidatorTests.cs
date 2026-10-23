@@ -318,9 +318,20 @@ public sealed class OidcTokenValidatorTests
     {
         var azure = FakeIssuers.Azure();
         azure.TenantId = FakeIssuers.AzureTenant.ToUpperInvariant();
+        azure.Audience = FakeIssuers.AzureApp.ToUpperInvariant();
         azure.PrincipalIds = [FakeIssuers.AzurePrincipal.ToUpperInvariant()];
 
         Assert.True((await Validate(_issuers.AzureToken(), azure)).IsValid);
         Assert.True((await Validate(_issuers.AzureToken(v1: true), azure)).IsValid);
+    }
+
+    [Fact]
+    public async Task Matches_azure_ids_written_without_hyphens_or_in_braces()
+    {
+        var azure = FakeIssuers.Azure();
+        azure.Audience = $"{{{FakeIssuers.AzureApp}}}";
+        azure.PrincipalIds = [FakeIssuers.AzurePrincipal.Replace("-", "")];
+
+        Assert.True((await Validate(_issuers.AzureToken(), azure)).IsValid);
     }
 }

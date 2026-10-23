@@ -83,6 +83,11 @@ internal static class TrustedIssuerResolver
                     failures.Add($"{path}:TenantId must be the Entra ID directory (tenant) ID, a GUID.");
                 if (string.IsNullOrWhiteSpace(audience))
                     failures.Add($"{path}:Audience is required: the application (client) ID of the app registration that stands for the site.");
+                // Entra ID writes a client ID in aud as a lower-case GUID, and aud is compared exactly.
+                else if (Guid.TryParse(audience, out var clientId))
+                    audience = clientId.ToString("D");
+                if (!string.IsNullOrWhiteSpace(options.Issuer))
+                    failures.Add($"{path}:Issuer is set by the Azure preset, which covers the public cloud. Set up a national cloud as a custom issuer.");
                 if (!HasValues(options.PrincipalIds))
                     failures.Add($"{path}:PrincipalIds must name at least one identity, or any app in the tenant could get in.");
                 else if (options.PrincipalIds.Any(id => !string.IsNullOrWhiteSpace(id) && !Guid.TryParse(id, out _)))
@@ -96,7 +101,11 @@ internal static class TrustedIssuerResolver
                 // By default, any app or managed identity in the tenant can get a token for any app registration,
                 // so the identity is what keeps the rest of the tenant out. oid is the same in both formats and,
                 // unlike a client ID, can only ever name the workload itself.
-                rules.Add(Rule([Constants.Azure.ObjectId], options.PrincipalIds, StringComparison.OrdinalIgnoreCase));
+                // Written the way Entra ID writes oid, so an ID pasted without hyphens or in braces still matches.
+                rules.Add(Rule(
+                    [Constants.Azure.ObjectId],
+                    options.PrincipalIds.Select(id => Guid.TryParse(id, out var principalId) ? principalId.ToString("D") : id),
+                    StringComparison.OrdinalIgnoreCase));
                 break;
 
             default:

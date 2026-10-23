@@ -254,7 +254,9 @@ Entra ID only issues tokens for apps it knows, so the site needs an app registra
    virtual machine, or set up workload identity on AKS. Its Object (principal) ID goes in `PrincipalIds`.
 
 All three settings are required. By default, any app or managed identity in the tenant can get a token for
-your app registration, so `PrincipalIds` is what keeps the rest of the tenant out.
+your app registration, so `PrincipalIds` is what keeps the rest of the tenant out. To let in a workload that
+signs in as an app registration instead, use the Object ID shown for it under Enterprise applications, not
+the one under App registrations.
 
 Request the token with the app's client ID as the scope. With `@azure/identity`:
 

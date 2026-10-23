@@ -69,6 +69,15 @@ public sealed class ApiOidcOptionsValidatorTests
     }
 
     [Fact]
+    public void Refuses_an_issuer_on_the_azure_preset()
+    {
+        var azure = FakeIssuers.Azure();
+        azure.Issuer = $"https://login.microsoftonline.us/{FakeIssuers.AzureTenant}/v2.0";
+
+        Assert.False(IsValid(azure));
+    }
+
+    [Fact]
     public void Refuses_an_azure_principal_that_is_not_an_object_id()
     {
         var azure = FakeIssuers.Azure();
