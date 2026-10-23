@@ -11,7 +11,7 @@ public sealed class ApiOidcOptionsValidatorTests
     public void Accepts_the_package_being_off() => Assert.True(IsValid());
 
     [Fact]
-    public void Accepts_the_presets() => Assert.True(IsValid(FakeIssuers.Vercel(), FakeIssuers.GitHub(), FakeIssuers.Azure()));
+    public void Accepts_the_presets() => Assert.True(IsValid(FakeIssuers.Vercel(), FakeIssuers.GitHub(), FakeIssuers.GitLab(), FakeIssuers.GoogleCloud(), FakeIssuers.Azure()));
 
     [Fact]
     public void Requires_a_vercel_team() =>
@@ -37,6 +37,96 @@ public sealed class ApiOidcOptionsValidatorTests
         github.Repositories = ["acme/site", "other/site"];
 
         Assert.False(IsValid(github));
+    }
+
+    [Fact]
+    public void Requires_a_gitlab_audience()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Audience = null;
+
+        Assert.False(IsValid(gitlab));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("https://gitlab.com/acme")]
+    public void Requires_a_gitlab_namespace_path(string? group)
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Namespace = group;
+        gitlab.Projects = [];
+
+        Assert.False(IsValid(gitlab));
+    }
+
+    [Fact]
+    public void Refuses_an_issuer_on_the_gitlab_and_google_presets()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Issuer = "https://gitlab.example.com";
+        var google = FakeIssuers.GoogleCloud();
+        google.Issuer = "https://accounts.google.com";
+
+        Assert.False(IsValid(gitlab));
+        Assert.False(IsValid(google));
+    }
+
+    [Fact]
+    public void Refuses_a_gitlab_project_of_another_namespace()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Projects = ["acme/site", "other/site"];
+
+        Assert.False(IsValid(gitlab));
+    }
+
+    [Fact]
+    public void Requires_an_https_gitlab_host()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Host = "http://gitlab.example.com";
+
+        Assert.False(IsValid(gitlab));
+    }
+
+    [Fact]
+    public void Requires_a_google_audience()
+    {
+        var google = FakeIssuers.GoogleCloud();
+        google.Audience = null;
+
+        Assert.False(IsValid(google));
+    }
+
+    [Fact]
+    public void Requires_a_google_service_account()
+    {
+        var google = FakeIssuers.GoogleCloud();
+        google.ServiceAccounts = [];
+
+        Assert.False(IsValid(google));
+    }
+
+    [Theory]
+    [InlineData("someone@gmail.com")]
+    [InlineData("renderer")]
+    [InlineData("@acme.iam.gserviceaccount.com")]
+    public void Refuses_a_google_account_that_is_not_a_service_account(string account)
+    {
+        var google = FakeIssuers.GoogleCloud();
+        google.ServiceAccounts = [account];
+
+        Assert.False(IsValid(google));
+    }
+
+    [Fact]
+    public void Accepts_a_google_service_account_by_unique_id()
+    {
+        var google = FakeIssuers.GoogleCloud();
+        google.ServiceAccounts = [FakeIssuers.GoogleServiceAccountId];
+
+        Assert.True(IsValid(google));
     }
 
     [Theory]

@@ -334,4 +334,99 @@ public sealed class OidcTokenValidatorTests
 
         Assert.True((await Validate(_issuers.AzureToken(), azure)).IsValid);
     }
+
+    [Fact]
+    public async Task Accepts_a_gitlab_token_from_an_allowed_project()
+    {
+        var result = await Validate(_issuers.GitLabToken(), FakeIssuers.GitLab());
+
+        Assert.True(result.IsValid);
+        Assert.Equal("GitLab", result.Identity!.IssuerName);
+        Assert.Equal(["https://gitlab.com/.well-known/openid-configuration"], _issuers.RequestedAddresses);
+    }
+
+    [Fact]
+    public async Task Refuses_a_gitlab_project_that_is_not_listed()
+    {
+        Assert.False((await Validate(_issuers.GitLabToken(project: "acme/other"), FakeIssuers.GitLab())).IsValid);
+    }
+
+    [Theory]
+    [InlineData("acme/other", true)]
+    [InlineData("acme/web/site", true)]
+    [InlineData("ACME/Site", true)]
+    [InlineData("acme-evil/site", false)]
+    [InlineData("evil/acme/site", false)]
+    public async Task Accepts_every_project_under_the_gitlab_namespace_without_a_project_list(string project, bool valid)
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Projects = [];
+
+        Assert.Equal(valid, (await Validate(_issuers.GitLabToken(project: project), gitlab)).IsValid);
+    }
+
+    [Fact]
+    public async Task Refuses_a_gitlab_token_from_another_ref_when_refs_are_listed()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Refs = ["refs/heads/main"];
+
+        Assert.True((await Validate(_issuers.GitLabToken(), gitlab)).IsValid);
+        Assert.False((await Validate(_issuers.GitLabToken(refPath: "refs/heads/feature"), gitlab)).IsValid);
+    }
+
+    [Fact]
+    public async Task Trusts_a_self_managed_gitlab_instead_of_gitlab_com()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Host = "https://gitlab.example.com/";
+
+        Assert.True((await Validate(_issuers.GitLabToken(issuer: "https://gitlab.example.com"), gitlab)).IsValid);
+        Assert.False((await Validate(_issuers.GitLabToken(), gitlab)).IsValid);
+    }
+
+    [Fact]
+    public async Task Accepts_a_google_token_from_an_allowed_service_account()
+    {
+        var result = await Validate(_issuers.GoogleToken(), FakeIssuers.GoogleCloud());
+
+        Assert.True(result.IsValid);
+        Assert.Equal("GoogleCloud", result.Identity!.IssuerName);
+        Assert.Equal(["https://accounts.google.com/.well-known/openid-configuration"], _issuers.RequestedAddresses);
+    }
+
+    [Fact]
+    public async Task Refuses_another_google_account()
+    {
+        var token = _issuers.GoogleToken(email: "someone@gmail.com", subject: "117392648201937465021");
+
+        Assert.False((await Validate(token, FakeIssuers.GoogleCloud())).IsValid);
+    }
+
+    [Fact]
+    public async Task Refuses_a_google_token_for_another_audience()
+    {
+        Assert.False((await Validate(_issuers.GoogleToken(audience: "https://other.example.com"), FakeIssuers.GoogleCloud())).IsValid);
+    }
+
+    [Fact]
+    public async Task Matches_a_google_service_account_by_unique_id_when_the_token_has_no_email()
+    {
+        var byEmail = FakeIssuers.GoogleCloud();
+        var byId = FakeIssuers.GoogleCloud();
+        byId.ServiceAccounts = [FakeIssuers.GoogleServiceAccountId];
+
+        Assert.False((await Validate(_issuers.GoogleToken(email: null), byEmail)).IsValid);
+        Assert.True((await Validate(_issuers.GoogleToken(email: null), byId)).IsValid);
+        Assert.True((await Validate(_issuers.GoogleToken(), byId)).IsValid);
+    }
+
+    [Fact]
+    public async Task Matches_google_service_account_emails_ignoring_case()
+    {
+        var google = FakeIssuers.GoogleCloud();
+        google.ServiceAccounts = ["Renderer@acme.iam.gserviceaccount.com"];
+
+        Assert.True((await Validate(_issuers.GoogleToken(), google)).IsValid);
+    }
 }

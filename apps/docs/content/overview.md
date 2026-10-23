@@ -19,10 +19,10 @@ A private Delivery API is protected by a single API key. Every frontend shares i
 | --- | --- | --- |
 | [Vercel](https://vercel.com/docs/oidc) functions and builds | `getVercelOidcToken()` from `@vercel/oidc` | [`Vercel` preset](/issuers#vercel) |
 | [GitHub Actions](https://docs.github.com/en/actions/concepts/security/openid-connect) | `core.getIDToken(audience)` | [`GitHubActions` preset](/issuers#github-actions) |
+| [GitLab CI](https://docs.gitlab.com/ci/secrets/id_token_authentication/) | `id_tokens` in `.gitlab-ci.yml` | [`GitLab` preset](/issuers#gitlab) |
+| [Google Cloud](https://docs.cloud.google.com/docs/authentication/get-id-token) Run, Functions and GKE | The metadata server, with your audience | [`GoogleCloud` preset](/issuers#google-cloud) |
 | [Azure](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview) App Service, Functions, Container Apps, AKS and VMs | A managed identity token for your app registration | [`Azure` preset](/issuers#azure) |
-| [Google Cloud](https://docs.cloud.google.com/docs/authentication/get-id-token) Run, Functions and GKE | The metadata server, with your audience | [Custom issuer](/issuers#google-cloud) |
 | [AWS](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_outbound.html) Lambda, ECS and EC2 | STS `GetWebIdentityToken` (IAM outbound identity federation) | [Custom issuer](/issuers#aws) |
-| [GitLab CI](https://docs.gitlab.com/ci/secrets/id_token_authentication/) | `id_tokens` in `.gitlab-ci.yml` | [Custom issuer](/issuers#gitlab-ci) |
 
 Cloudflare Workers and Netlify Functions have no built-in workload token, so frontends there keep using the API key.
 

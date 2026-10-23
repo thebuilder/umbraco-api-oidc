@@ -1,6 +1,6 @@
 ---
 title: Issuers
-description: Trust tokens from Vercel, GitHub Actions, Azure, Google Cloud, AWS, GitLab and any other OIDC issuer.
+description: Trust tokens from Vercel, GitHub Actions, GitLab, Google Cloud, Azure, AWS and any other OIDC issuer.
 seo:
   image: /og/issuers.png
 ---
@@ -10,7 +10,7 @@ Each entry in `Issuers` is one source of tokens. A token is accepted when its is
 | Setting          | What it does |
 | ---------------- | ------------ |
 | `Name`           | A name for log messages and for `[RequireOidcToken(...)]`. Defaults to the preset name or the issuer URL. |
-| `Preset`         | `Vercel`, `GitHubActions`, `Azure`, or `Custom` (the default). |
+| `Preset`         | `Vercel`, `GitHubActions`, `GitLab`, `GoogleCloud`, `Azure`, or `Custom` (the default). |
 | `Audience`       | The `aud` the token must carry, which names the service the token was made for. |
 | `RequiredClaims` | Claims the token must carry, each with its allowed values. Added to the preset's own rules. |
 | `AllowPreview`   | Whether the token also unlocks draft content, as the API key does. Defaults to `true`. |
@@ -53,6 +53,58 @@ const token = await core.getIDToken();
 
 The token's audience says which service it was made for. Without an argument, GitHub uses `https://github.com/{owner}`, which is also this preset's default. With that default, a token your workflows send to another service that accepts GitHub's default audience would also work on your CMS. To keep them apart, pick your own audience: set it as `Audience`, such as `"https://cms.example.com"`, and pass the same value to `core.getIDToken('https://cms.example.com')`.
 
+## GitLab
+
+See GitLab's [ID token docs](https://docs.gitlab.com/ci/secrets/id_token_authentication/) for how jobs request tokens and what they contain.
+
+```json
+{ "Preset": "GitLab", "Namespace": "acme", "Audience": "https://cms.example.com" }
+```
+
+`Namespace` is the full path of your group, or a user, such as `acme` or `acme/web`. It accepts every project in the group and its subgroups, and tokens from anywhere else are refused. `Audience` is required: pick a value for your CMS and declare the same one in the job. To narrow it down, add any of these filters:
+
+- `Projects`, as full paths, such as `["acme/web/site"]`.
+- `Refs`, such as `["refs/heads/main"]`.
+- `Environments`, the GitLab environments allowed in.
+
+Declare the token in the job, and send `$UMBRACO_TOKEN` in the header:
+
+```yaml
+build:
+  id_tokens:
+    UMBRACO_TOKEN:
+      aud: https://cms.example.com
+```
+
+For a self-managed instance, set `Host` to its address, such as `"https://gitlab.example.com"`.
+
+In a merge request pipeline, the token names the project the source branch lives in. A merge request from a fork outside your namespace is therefore refused, even when its pipeline runs in your project.
+
+## Google Cloud
+
+See Google's [ID token docs](https://docs.cloud.google.com/docs/authentication/get-id-token) for how Cloud Run, Cloud Functions, GKE and other workloads request tokens.
+
+```json
+{
+  "Preset": "GoogleCloud",
+  "Audience": "https://cms.example.com",
+  "ServiceAccounts": ["renderer@acme.iam.gserviceaccount.com"]
+}
+```
+
+Both settings are required. Any service account in any Google Cloud project can get an ID token for any audience, so `ServiceAccounts` is what keeps everyone else out. List each service account by email, or by its unique ID.
+
+Request the token with the same audience. Google's client libraries ask the metadata server for you, for example in Node.js:
+
+```ts
+import { GoogleAuth } from 'google-auth-library';
+
+const client = await new GoogleAuth().getIdTokenClient('https://cms.example.com');
+const token = await client.idTokenProvider.fetchIdToken('https://cms.example.com');
+```
+
+The metadata server only puts the email in the token when asked for the full format, with `format=full`. If you call it yourself without that, list the service account's unique ID instead, which is always in `sub`.
+
 ## Azure
 
 See Microsoft's [managed identity docs](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview) for which Azure services have one and how they get tokens.
@@ -90,24 +142,11 @@ Azure Government and the other national clouds sign in on another host. Set them
 
 ## Any other issuer
 
-`Issuer`, `Audience` and at least one required claim are needed. Without a claim, any workload the issuer serves could get in. With Google, for example, that would be anyone with a Google account. Each required claim must match a top-level string claim in the token, including its case.
+`Issuer`, `Audience` and at least one required claim are needed. Without a claim, any workload the issuer serves could get in. Each required claim must match a top-level string claim in the token, including its case.
 
 :::tip
 Decode a real token from your workload, for example with [jwt.io](https://jwt.io), before you write the entry: it shows the exact `iss`, `aud` and claims to match.
 :::
-
-### Google Cloud
-
-Request an [ID token](https://docs.cloud.google.com/docs/authentication/get-id-token) from the metadata server with your audience, and require the service account's email:
-
-```json
-{
-  "Name": "renderer",
-  "Issuer": "https://accounts.google.com",
-  "Audience": "https://cms.example.com",
-  "RequiredClaims": { "email": ["renderer@acme.iam.gserviceaccount.com"] }
-}
-```
 
 ### AWS
 
@@ -119,18 +158,5 @@ Request a token with [`GetWebIdentityToken`](https://docs.aws.amazon.com/IAM/lat
   "Issuer": "https://abc123-def456-ghi789-jkl012.tokens.sts.global.api.aws",
   "Audience": "https://cms.example.com",
   "RequiredClaims": { "sub": ["arn:aws:iam::123456789012:role/Renderer"] }
-}
-```
-
-### GitLab CI
-
-Declare an [ID token](https://docs.gitlab.com/ci/secrets/id_token_authentication/) in the job with your audience, and require the project path:
-
-```json
-{
-  "Name": "gitlab-build",
-  "Issuer": "https://gitlab.com",
-  "Audience": "https://cms.example.com",
-  "RequiredClaims": { "project_path": ["acme/site"] }
 }
 ```
