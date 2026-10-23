@@ -6,7 +6,7 @@ namespace TheBuilder.ApiOidc.Configuration;
 internal static class TrustedIssuerResolver
 {
     public static IReadOnlyList<TrustedIssuer> Resolve(ApiOidcOptions options) =>
-        options.Issuers.Select((issuer, index) => Resolve(issuer, index, out _)).OfType<TrustedIssuer>().ToList();
+        options.Issuers.SelectMany((issuer, index) => Resolve(issuer, index, out _)).ToList();
 
     public static IReadOnlyList<string> Validate(ApiOidcOptions options)
     {
@@ -20,13 +20,15 @@ internal static class TrustedIssuerResolver
         return failures;
     }
 
-    private static TrustedIssuer? Resolve(TrustedIssuerOptions options, int index, out List<string> failures)
+    private static IReadOnlyList<TrustedIssuer> Resolve(TrustedIssuerOptions options, int index, out List<string> failures)
     {
         failures = [];
         var path = $"{ApiOidcOptions.SectionName}:Issuers:{index}";
         var rules = new List<ClaimRule>();
         string? issuer;
         string? audience = options.Audience;
+        // An issuer that signs a second token format under another iss, with the metadata that describes it.
+        (string Issuer, string MetadataAddress)? alternate = null;
 
         switch (options.Preset)
         {
@@ -76,6 +78,36 @@ internal static class TrustedIssuerResolver
                     rules.Add(Rule([Constants.GitHubActions.Environment], options.Environments, StringComparison.Ordinal));
                 break;
 
+            case IssuerPreset.Azure:
+                if (!Guid.TryParse(options.TenantId, out var tenantId))
+                    failures.Add($"{path}:TenantId must be the Entra ID directory (tenant) ID, a GUID.");
+                if (string.IsNullOrWhiteSpace(audience))
+                    failures.Add($"{path}:Audience is required: the application (client) ID of the app registration that stands for the site.");
+                // Entra ID writes a client ID in aud as a lower-case GUID, and aud is compared exactly.
+                else if (Guid.TryParse(audience, out var clientId))
+                    audience = clientId.ToString("D");
+                if (!string.IsNullOrWhiteSpace(options.Issuer))
+                    failures.Add($"{path}:Issuer is set by the Azure preset, which covers the public cloud. Set up a national cloud as a custom issuer.");
+                if (!HasValues(options.PrincipalIds))
+                    failures.Add($"{path}:PrincipalIds must name at least one identity, or any app in the tenant could get in.");
+                else if (options.PrincipalIds.Any(id => !string.IsNullOrWhiteSpace(id) && !Guid.TryParse(id, out _)))
+                    failures.Add($"{path}:PrincipalIds must be object (principal) IDs, which are GUIDs.");
+
+                // The app registration's requestedAccessTokenVersion decides which format the tenant issues, and
+                // the workload has no say in it, so both are accepted. They differ in iss, not in what they prove.
+                issuer = $"{Constants.Azure.Host}/{tenantId:D}/v2.0";
+                alternate = ($"{Constants.Azure.V1Host}/{tenantId:D}/", $"{Constants.Azure.Host}/{tenantId:D}/.well-known/openid-configuration");
+
+                // By default, any app or managed identity in the tenant can get a token for any app registration,
+                // so the identity is what keeps the rest of the tenant out. oid is the same in both formats and,
+                // unlike a client ID, can only ever name the workload itself.
+                // Written the way Entra ID writes oid, so an ID pasted without hyphens or in braces still matches.
+                rules.Add(Rule(
+                    [Constants.Azure.ObjectId],
+                    options.PrincipalIds.Select(id => Guid.TryParse(id, out var principalId) ? principalId.ToString("D") : id),
+                    StringComparison.OrdinalIgnoreCase));
+                break;
+
             default:
                 issuer = options.Issuer;
                 if (string.IsNullOrWhiteSpace(audience))
@@ -99,12 +131,24 @@ internal static class TrustedIssuerResolver
             .Select(claim => Rule([claim.Key], claim.Value, StringComparison.Ordinal)));
 
         if (failures.Count > 0)
-            return null;
+            return [];
 
         var name = string.IsNullOrWhiteSpace(options.Name)
             ? options.Preset == IssuerPreset.Custom ? issuer! : options.Preset.ToString()
             : options.Name;
-        return new TrustedIssuer(name, issuer!, audience!, metadataAddress, rules, options.AllowPreview);
+        var trusted = new TrustedIssuer(name, issuer!, audience!, metadataAddress, rules, options.AllowPreview);
+        if (alternate is not { } other)
+            return [trusted];
+
+        return
+        [
+            trusted,
+            trusted with
+            {
+                Issuer = other.Issuer,
+                MetadataAddress = string.IsNullOrWhiteSpace(options.MetadataAddress) ? other.MetadataAddress : options.MetadataAddress,
+            },
+        ];
     }
 
     private static ClaimRule Rule(IReadOnlyList<string> claimNames, IEnumerable<string> values, StringComparison comparison) =>

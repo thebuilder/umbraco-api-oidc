@@ -19,8 +19,8 @@ short-lived token, signed by the platform, that says which project or repository
 lets Umbraco accept those tokens on the Delivery API and on [your own endpoints](#protecting-your-own-endpoints).
 
 - Tokens expire on their own, so there is no secret to store or rotate.
-- You choose which Vercel teams or projects, GitHub repositories or other workloads are allowed. Tokens from
-  anywhere else are refused.
+- You choose which Vercel teams or projects, GitHub repositories, Azure identities or other workloads are
+  allowed. Tokens from anywhere else are refused.
 - Public access, media access and the API key work as before, so you can move frontends over one at a time
   and remove the key after the last one.
 
@@ -32,10 +32,10 @@ The package requires Umbraco 17.1 or later, including 18.
 | --- | --- | --- |
 | [Vercel](https://vercel.com/docs/oidc) functions and builds | `getVercelOidcToken()` from `@vercel/oidc` | [`Vercel` preset](#vercel) |
 | [GitHub Actions](https://docs.github.com/en/actions/concepts/security/openid-connect) | `core.getIDToken(audience)` | [`GitHubActions` preset](#github-actions) |
+| [Azure](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview) App Service, Functions, Container Apps, AKS and VMs | A managed identity token for your app registration | [`Azure` preset](#azure) |
 | [Google Cloud](https://docs.cloud.google.com/docs/authentication/get-id-token) Run, Functions and GKE | The metadata server, with your audience | [Custom issuer](#google-cloud) |
 | [AWS](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_outbound.html) Lambda, ECS and EC2 | STS `GetWebIdentityToken` (IAM outbound identity federation) | [Custom issuer](#aws) |
 | [GitLab CI](https://docs.gitlab.com/ci/secrets/id_token_authentication/) | `id_tokens` in `.gitlab-ci.yml` | [Custom issuer](#gitlab-ci) |
-| [Azure](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/how-to-use-vm-token) | A managed identity token from Entra ID | [Custom issuer](#any-other-issuer) |
 
 Cloudflare Workers and Netlify Functions have no built-in workload token, so frontends there keep using
 the API key.
@@ -177,7 +177,7 @@ match an entry. Every entry accepts these settings:
 | Setting          | What it does |
 | ---------------- | ------------ |
 | `Name`           | A name for log messages and for `[RequireOidcToken(...)]`. Defaults to the preset name or the issuer URL. |
-| `Preset`         | `Vercel`, `GitHubActions`, or `Custom` (the default). |
+| `Preset`         | `Vercel`, `GitHubActions`, `Azure`, or `Custom` (the default). |
 | `Audience`       | The `aud` the token must carry, which names the service the token was made for. |
 | `RequiredClaims` | Claims the token must carry, each with its allowed values. Added to the preset's own rules. |
 | `AllowPreview`   | Whether the token also unlocks draft content, as the API key does. Defaults to `true`. |
@@ -230,6 +230,52 @@ The token's audience says which service it was made for. Without an argument, Gi
 workflows send to another service that accepts GitHub's default audience would also work on your CMS. To
 keep them apart, pick your own audience: set it as `Audience`, such as `"https://cms.example.com"`, and pass
 the same value to `core.getIDToken('https://cms.example.com')`.
+
+### Azure
+
+See Microsoft's [managed identity docs](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview)
+for which Azure services have one and how they get tokens.
+
+```json
+{
+  "Preset": "Azure",
+  "TenantId": "3f2b8c1d-6e4a-4b7f-9d2c-8a1e5f3b7c90",
+  "Audience": "6e74172b-be56-4843-9ff4-e66a39bb12e3",
+  "PrincipalIds": ["e9b1f3a0-4c2d-4f7e-9a51-3b8c6d2e1f04"]
+}
+```
+
+Entra ID only issues tokens for apps it knows, so the site needs an app registration of its own:
+
+1. Under App registrations in Entra ID, register an app for the site, such as `Umbraco CMS`. It needs no
+   redirect URI, secret or API permissions. Its Directory (tenant) ID is the `TenantId`, and its Application
+   (client) ID is the `Audience`.
+2. Turn on a managed identity for each workload, such as an App Service, Function App, Container App or
+   virtual machine, or set up workload identity on AKS. Its Object (principal) ID goes in `PrincipalIds`.
+
+All three settings are required. By default, any app or managed identity in the tenant can get a token for
+your app registration, so `PrincipalIds` is what keeps the rest of the tenant out. To let in a workload that
+signs in as an app registration instead, use the Object ID shown for it under Enterprise applications, not
+the one under App registrations.
+
+Request the token with the app's client ID as the scope. With `@azure/identity`:
+
+```ts
+import { ManagedIdentityCredential } from '@azure/identity';
+
+const credential = new ManagedIdentityCredential();
+const { token } = await credential.getToken('6e74172b-be56-4843-9ff4-e66a39bb12e3/.default');
+```
+
+For a user-assigned identity, pass its client ID: `new ManagedIdentityCredential({ clientId })`.
+
+Entra ID issues v1.0 or v2.0 tokens, depending on the app registration's `requestedAccessTokenVersion`, and
+the preset accepts both. A v2.0 token always carries the client ID as its audience. A v1.0 token carries
+whatever the workload asked for, so if your workloads ask for an Application ID URI such as
+`api://umbraco-cms` instead, set that as `Audience`. It then works with v1.0 tokens only.
+
+Azure Government and the other national clouds sign in on another host. Set them up as a
+[custom issuer](#any-other-issuer).
 
 ### Any other issuer
 
@@ -319,7 +365,7 @@ endpoints that require it.
 The full documentation is at [api-oidc.thebuilder.dk](https://api-oidc.thebuilder.dk).
 
 - [Quickstart](https://api-oidc.thebuilder.dk/quickstart): install the package, trust your platform and send the first token.
-- [Issuers](https://api-oidc.thebuilder.dk/issuers): set up Vercel, GitHub Actions, Google Cloud, AWS, GitLab or any other issuer.
+- [Issuers](https://api-oidc.thebuilder.dk/issuers): set up Vercel, GitHub Actions, Azure, Google Cloud, AWS, GitLab or any other issuer.
 - [Custom endpoints](https://api-oidc.thebuilder.dk/custom-endpoints): protect your own controllers and minimal APIs.
 - [Configuration](https://api-oidc.thebuilder.dk/configuration): the settings that apply to every issuer.
 

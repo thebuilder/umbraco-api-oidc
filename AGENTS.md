@@ -1,6 +1,6 @@
 # AGENTS
 
-An Umbraco package that lets workloads (Vercel, GitHub Actions, Google Cloud, AWS and other OIDC issuers)
+An Umbraco package that lets workloads (Vercel, GitHub Actions, Azure, Google Cloud, AWS and other OIDC issuers)
 authenticate to the Content Delivery API, and to custom endpoints that opt in, with their OIDC token instead
 of the shared Delivery API key.
 
@@ -8,7 +8,7 @@ of the shared Delivery API key.
 
 - `src/TheBuilder.ApiOidc/` - the package. No backoffice UI; it is configured from appsettings.
   - `Configuration/` - `ApiOidcOptions`, bound from `ApiOidc`, and
-    `TrustedIssuerResolver`, which expands the Vercel and GitHub Actions presets into issuer, audience and
+    `TrustedIssuerResolver`, which expands the Vercel, GitHub Actions and Azure presets into issuer, audience and
     claim rules. Add a new preset there.
   - `Tokens/` - JWT validation against each issuer's published keys, then the issuer entry's claim rules.
   - `DeliveryApi/` - the middleware that validates the token, and the `IApiAccessService` replacement.

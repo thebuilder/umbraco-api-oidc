@@ -1,6 +1,6 @@
 ---
 title: Issuers
-description: Trust tokens from Vercel, GitHub Actions, Google Cloud, AWS, GitLab and any other OIDC issuer.
+description: Trust tokens from Vercel, GitHub Actions, Azure, Google Cloud, AWS, GitLab and any other OIDC issuer.
 seo:
   image: /og/issuers.png
 ---
@@ -10,7 +10,7 @@ Each entry in `Issuers` is one source of tokens. A token is accepted when its is
 | Setting          | What it does |
 | ---------------- | ------------ |
 | `Name`           | A name for log messages and for `[RequireOidcToken(...)]`. Defaults to the preset name or the issuer URL. |
-| `Preset`         | `Vercel`, `GitHubActions`, or `Custom` (the default). |
+| `Preset`         | `Vercel`, `GitHubActions`, `Azure`, or `Custom` (the default). |
 | `Audience`       | The `aud` the token must carry, which names the service the token was made for. |
 | `RequiredClaims` | Claims the token must carry, each with its allowed values. Added to the preset's own rules. |
 | `AllowPreview`   | Whether the token also unlocks draft content, as the API key does. Defaults to `true`. |
@@ -52,6 +52,41 @@ const token = await core.getIDToken();
 ```
 
 The token's audience says which service it was made for. Without an argument, GitHub uses `https://github.com/{owner}`, which is also this preset's default. With that default, a token your workflows send to another service that accepts GitHub's default audience would also work on your CMS. To keep them apart, pick your own audience: set it as `Audience`, such as `"https://cms.example.com"`, and pass the same value to `core.getIDToken('https://cms.example.com')`.
+
+## Azure
+
+See Microsoft's [managed identity docs](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview) for which Azure services have one and how they get tokens.
+
+```json
+{
+  "Preset": "Azure",
+  "TenantId": "3f2b8c1d-6e4a-4b7f-9d2c-8a1e5f3b7c90",
+  "Audience": "6e74172b-be56-4843-9ff4-e66a39bb12e3",
+  "PrincipalIds": ["e9b1f3a0-4c2d-4f7e-9a51-3b8c6d2e1f04"]
+}
+```
+
+Entra ID only issues tokens for apps it knows, so the site needs an app registration of its own:
+
+1. Under App registrations in Entra ID, register an app for the site, such as `Umbraco CMS`. It needs no redirect URI, secret or API permissions. Its Directory (tenant) ID is the `TenantId`, and its Application (client) ID is the `Audience`.
+2. Turn on a managed identity for each workload, such as an App Service, Function App, Container App or virtual machine, or set up workload identity on AKS. Its Object (principal) ID goes in `PrincipalIds`.
+
+All three settings are required. By default, any app or managed identity in the tenant can get a token for your app registration, so `PrincipalIds` is what keeps the rest of the tenant out. To let in a workload that signs in as an app registration instead, use the Object ID shown for it under Enterprise applications, not the one under App registrations.
+
+Request the token with the app's client ID as the scope. With `@azure/identity`:
+
+```ts
+import { ManagedIdentityCredential } from '@azure/identity';
+
+const credential = new ManagedIdentityCredential();
+const { token } = await credential.getToken('6e74172b-be56-4843-9ff4-e66a39bb12e3/.default');
+```
+
+For a user-assigned identity, pass its client ID: `new ManagedIdentityCredential({ clientId })`.
+
+Entra ID issues v1.0 or v2.0 tokens, depending on the app registration's `requestedAccessTokenVersion`, and the preset accepts both. A v2.0 token always carries the client ID as its audience. A v1.0 token carries whatever the workload asked for, so if your workloads ask for an Application ID URI such as `api://umbraco-cms` instead, set that as `Audience`. It then works with v1.0 tokens only.
+
+Azure Government and the other national clouds sign in on another host. Set them up as a [custom issuer](#any-other-issuer).
 
 ## Any other issuer
 

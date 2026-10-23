@@ -263,4 +263,75 @@ public sealed class OidcTokenValidatorTests
         Assert.Equal("shop", result.Identity?.IssuerName);
         Assert.False(result.Identity!.AllowPreview);
     }
+
+    [Fact]
+    public async Task Accepts_an_azure_token_from_an_allowed_identity()
+    {
+        var result = await Validate(_issuers.AzureToken(), FakeIssuers.Azure());
+
+        Assert.True(result.IsValid);
+        Assert.Equal("Azure", result.Identity!.IssuerName);
+        Assert.Equal(
+            [$"https://login.microsoftonline.com/{FakeIssuers.AzureTenant}/v2.0/.well-known/openid-configuration"],
+            _issuers.RequestedAddresses);
+    }
+
+    [Fact]
+    public async Task Accepts_an_azure_v1_token_with_the_keys_entra_id_publishes_for_it()
+    {
+        var result = await Validate(_issuers.AzureToken(v1: true), FakeIssuers.Azure());
+
+        Assert.True(result.IsValid);
+        Assert.Equal("Azure", result.Identity!.IssuerName);
+        Assert.Equal(
+            [$"https://login.microsoftonline.com/{FakeIssuers.AzureTenant}/.well-known/openid-configuration"],
+            _issuers.RequestedAddresses);
+    }
+
+    [Fact]
+    public async Task Refuses_another_identity_in_the_azure_tenant()
+    {
+        var result = await Validate(_issuers.AzureToken(principal: "0b6f8c2e-1d4a-4e7b-8c3f-5a9d2e6b1c07"), FakeIssuers.Azure());
+
+        Assert.False(result.IsValid);
+        Assert.Contains(FakeIssuers.AzurePrincipal, result.Failure);
+    }
+
+    [Fact]
+    public async Task Refuses_an_azure_token_from_another_tenant()
+    {
+        var token = _issuers.AzureToken(tenant: "f8cdef31-a31e-4b4a-93e4-5f571e91255a");
+
+        Assert.False((await Validate(token, FakeIssuers.Azure())).IsValid);
+    }
+
+    [Fact]
+    public async Task Refuses_an_azure_token_for_another_app()
+    {
+        var token = _issuers.AzureToken(audience: "https://management.azure.com");
+
+        Assert.False((await Validate(token, FakeIssuers.Azure())).IsValid);
+    }
+
+    [Fact]
+    public async Task Matches_azure_ids_ignoring_case()
+    {
+        var azure = FakeIssuers.Azure();
+        azure.TenantId = FakeIssuers.AzureTenant.ToUpperInvariant();
+        azure.Audience = FakeIssuers.AzureApp.ToUpperInvariant();
+        azure.PrincipalIds = [FakeIssuers.AzurePrincipal.ToUpperInvariant()];
+
+        Assert.True((await Validate(_issuers.AzureToken(), azure)).IsValid);
+        Assert.True((await Validate(_issuers.AzureToken(v1: true), azure)).IsValid);
+    }
+
+    [Fact]
+    public async Task Matches_azure_ids_written_without_hyphens_or_in_braces()
+    {
+        var azure = FakeIssuers.Azure();
+        azure.Audience = $"{{{FakeIssuers.AzureApp}}}";
+        azure.PrincipalIds = [FakeIssuers.AzurePrincipal.Replace("-", "")];
+
+        Assert.True((await Validate(_issuers.AzureToken(), azure)).IsValid);
+    }
 }

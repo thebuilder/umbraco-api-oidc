@@ -69,7 +69,7 @@ const features = [
       layout="split"
       title="Your platform's token,"
       accent="instead of a shared API key."
-      description="Vercel, GitHub Actions, Google Cloud, AWS and GitLab give each workload a short-lived, signed token. Umbraco accepts it on the Delivery API and on the endpoints you choose."
+      description="Vercel, GitHub Actions, Azure, Google Cloud, AWS and GitLab give each workload a short-lived, signed token. Umbraco accepts it on the Delivery API and on the endpoints you choose."
       compatibility="Umbraco CMS 17.1 or later · .NET 10"
     >
       <HeroParticles slot="background" logo="/logo-mark.svg" />
@@ -84,7 +84,7 @@ const features = [
       <div class="section-heading reveal">
         <span class="rule" aria-hidden="true"></span>
         <h2 id="features-title">Why use a token instead of the key</h2>
-        <p>For frontends that run on Vercel, GitHub Actions, Google Cloud, AWS, GitLab or another platform that issues OIDC tokens.</p>
+        <p>For frontends that run on Vercel, GitHub Actions, Azure, Google Cloud, AWS, GitLab or another platform that issues OIDC tokens.</p>
       </div>
       <div class="feature-grid">
         {features.map((feature, index) => (
@@ -101,7 +101,7 @@ const features = [
       <div class="flow__copy reveal">
         <span class="rule" aria-hidden="true"></span>
         <h2 id="flow-title">Trust an issuer in appsettings</h2>
-        <p>Presets cover Vercel and GitHub Actions. Any other OIDC issuer needs its URL, an audience and the claims a token must carry.</p>
+        <p>Presets cover Vercel, GitHub Actions and Azure. Any other OIDC issuer needs its URL, an audience and the claims a token must carry.</p>
         <a class="text-link" href="/issuers">Set up your issuer <span aria-hidden="true">→</span></a>
       </div>
       <div class="code-preview reveal" style="--i: 1">

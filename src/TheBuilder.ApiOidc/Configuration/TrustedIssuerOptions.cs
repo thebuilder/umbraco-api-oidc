@@ -1,7 +1,7 @@
 namespace TheBuilder.ApiOidc.Configuration;
 
 /// <summary>
-///     One source of tokens the package accepts. Pick a <see cref="Preset" /> for Vercel or GitHub Actions,
+///     One source of tokens the package accepts. Pick a <see cref="Preset" /> for Vercel, GitHub Actions or Azure,
 ///     or describe any other issuer with <see cref="Issuer" />, <see cref="Audience" /> and <see cref="RequiredClaims" />.
 /// </summary>
 public sealed class TrustedIssuerOptions
@@ -15,12 +15,13 @@ public sealed class TrustedIssuerOptions
     /// <summary>The kind of issuer. Defaults to <see cref="IssuerPreset.Custom" />.</summary>
     public IssuerPreset Preset { get; set; } = IssuerPreset.Custom;
 
-    /// <summary>The token's <c>iss</c>. Set by the Vercel and GitHub Actions presets.</summary>
+    /// <summary>The token's <c>iss</c>. Set by the presets.</summary>
     public string? Issuer { get; set; }
 
     /// <summary>
     ///     The token's <c>aud</c>: which service the token was made for. Required for a custom issuer. Vercel defaults
-    ///     to <c>https://vercel.com/{team}</c> and GitHub Actions to <c>https://github.com/{owner}</c>.
+    ///     to <c>https://vercel.com/{team}</c> and GitHub Actions to <c>https://github.com/{owner}</c>. Azure requires
+    ///     it: the application (client) ID of the app registration that stands for the site.
     /// </summary>
     public string? Audience { get; set; }
 
@@ -61,6 +62,15 @@ public sealed class TrustedIssuerOptions
 
     /// <summary>GitHub Actions: refs allowed in, such as <c>refs/heads/main</c>. Empty allows any.</summary>
     public IList<string> Refs { get; set; } = [];
+
+    /// <summary>Azure: the Entra ID directory (tenant) ID the identities belong to.</summary>
+    public string? TenantId { get; set; }
+
+    /// <summary>
+    ///     Azure: the object (principal) IDs of the managed identities, or the service principals of app registrations,
+    ///     allowed in. At least one is required.
+    /// </summary>
+    public IList<string> PrincipalIds { get; set; } = [];
 
     /// <summary>
     ///     Vercel: environments allowed in, defaulting to <c>production</c> and <c>preview</c>. Add

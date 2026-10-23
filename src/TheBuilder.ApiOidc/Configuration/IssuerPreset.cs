@@ -13,4 +13,10 @@ public enum IssuerPreset
 
     /// <summary>GitHub Actions workflows, scoped by owner and optionally by repository, ref and environment.</summary>
     GitHubActions,
+
+    /// <summary>
+    ///     Azure managed identities and workload identities, with Entra ID tokens for an app registration, scoped by
+    ///     tenant and principal.
+    /// </summary>
+    Azure,
 }
