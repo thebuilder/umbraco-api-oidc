@@ -1,8 +1,9 @@
 namespace TheBuilder.ApiOidc.Configuration;
 
 /// <summary>
-///     One source of tokens the package accepts. Pick a <see cref="Preset" /> for Vercel, GitHub Actions, GitLab, Google Cloud or Azure,
-///     or describe any other issuer with <see cref="Issuer" />, <see cref="Audience" /> and <see cref="RequiredClaims" />.
+///     One source of tokens the package accepts. Pick a <see cref="Preset" /> for Vercel, GitHub Actions, GitLab,
+///     Google Cloud or Azure, or describe any other issuer with <see cref="Issuer" />, <see cref="Audience" /> and
+///     <see cref="RequiredClaims" />.
 /// </summary>
 public sealed class TrustedIssuerOptions
 {

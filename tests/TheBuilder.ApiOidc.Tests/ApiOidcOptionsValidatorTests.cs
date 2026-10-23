@@ -48,13 +48,28 @@ public sealed class ApiOidcOptionsValidatorTests
         Assert.False(IsValid(gitlab));
     }
 
-    [Fact]
-    public void Requires_a_gitlab_namespace()
+    [Theory]
+    [InlineData(null)]
+    [InlineData("https://gitlab.com/acme")]
+    public void Requires_a_gitlab_namespace_path(string? group)
     {
         var gitlab = FakeIssuers.GitLab();
-        gitlab.Namespace = null;
+        gitlab.Namespace = group;
+        gitlab.Projects = [];
 
         Assert.False(IsValid(gitlab));
+    }
+
+    [Fact]
+    public void Refuses_an_issuer_on_the_gitlab_and_google_presets()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Issuer = "https://gitlab.example.com";
+        var google = FakeIssuers.GoogleCloud();
+        google.Issuer = "https://accounts.google.com";
+
+        Assert.False(IsValid(gitlab));
+        Assert.False(IsValid(google));
     }
 
     [Fact]

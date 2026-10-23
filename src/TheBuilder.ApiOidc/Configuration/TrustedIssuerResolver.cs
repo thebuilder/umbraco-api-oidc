@@ -80,11 +80,13 @@ internal static class TrustedIssuerResolver
 
             case IssuerPreset.GitLab:
                 issuer = string.IsNullOrWhiteSpace(options.Host) ? Constants.GitLab.Host : options.Host.TrimEnd('/');
-                // GitLab has no default audience: the job names one in id_tokens, and the site must expect it.
+                // The job names its audience in id_tokens, so the site has to say which one it expects.
                 if (string.IsNullOrWhiteSpace(audience))
                     failures.Add($"{path}:Audience is required, and must match the aud the job asks for in id_tokens.");
+                if (!string.IsNullOrWhiteSpace(options.Issuer))
+                    failures.Add($"{path}:Issuer is set by the GitLab preset. Set Host for a self-managed instance.");
                 var group = options.Namespace?.Trim('/');
-                if (string.IsNullOrWhiteSpace(group) || group.Any(char.IsWhiteSpace))
+                if (string.IsNullOrWhiteSpace(group) || group.Any(c => char.IsWhiteSpace(c) || c == ':'))
                     failures.Add($"{path}:Namespace must be the full path of the GitLab group or user, such as \"acme\".");
                 else if (options.Projects.Any(project => !string.IsNullOrWhiteSpace(project) &&
                              !project.StartsWith($"{group}/", StringComparison.OrdinalIgnoreCase)))
@@ -104,10 +106,13 @@ internal static class TrustedIssuerResolver
 
             case IssuerPreset.GoogleCloud:
                 issuer = Constants.GoogleCloud.Issuer;
-                // Anyone can get a Google ID token for any audience, so the audience says only that the token was
-                // meant for this site. It is still required, so a token sent to another service cannot be replayed here.
+                // Any service account in any project can get a Google ID token for any audience, so the audience says
+                // only that the token was meant for this site. It is still required, so a token sent to another
+                // service cannot be replayed here.
                 if (string.IsNullOrWhiteSpace(audience))
                     failures.Add($"{path}:Audience is required, and must match the audience the workload asks for.");
+                if (!string.IsNullOrWhiteSpace(options.Issuer))
+                    failures.Add($"{path}:Issuer is set by the GoogleCloud preset.");
                 if (!HasValues(options.ServiceAccounts))
                     failures.Add($"{path}:ServiceAccounts must name at least one, or anyone with a Google account could get in.");
                 else if (options.ServiceAccounts.Any(account => !string.IsNullOrWhiteSpace(account) && !IsServiceAccount(account)))

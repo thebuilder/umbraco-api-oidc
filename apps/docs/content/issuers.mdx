@@ -61,7 +61,7 @@ See GitLab's [ID token docs](https://docs.gitlab.com/ci/secrets/id_token_authent
 { "Preset": "GitLab", "Namespace": "acme", "Audience": "https://cms.example.com" }
 ```
 
-`Namespace` is the full path of your group, or a user, such as `acme` or `acme/web`. It accepts every project in the group and its subgroups, and tokens from anywhere else are refused. `Audience` is required, because GitLab has no default: pick a value for your CMS and declare the same one in the job. To narrow it down, add any of these filters:
+`Namespace` is the full path of your group, or a user, such as `acme` or `acme/web`. It accepts every project in the group and its subgroups, and tokens from anywhere else are refused. `Audience` is required: pick a value for your CMS and declare the same one in the job. To narrow it down, add any of these filters:
 
 - `Projects`, as full paths, such as `["acme/web/site"]`.
 - `Refs`, such as `["refs/heads/main"]`.
@@ -78,6 +78,8 @@ build:
 
 For a self-managed instance, set `Host` to its address, such as `"https://gitlab.example.com"`.
 
+In a merge request pipeline, the token names the project the source branch lives in. A merge request from a fork outside your namespace is therefore refused, even when its pipeline runs in your project.
+
 ## Google Cloud
 
 See Google's [ID token docs](https://docs.cloud.google.com/docs/authentication/get-id-token) for how Cloud Run, Cloud Functions, GKE and other workloads request tokens.
@@ -90,7 +92,7 @@ See Google's [ID token docs](https://docs.cloud.google.com/docs/authentication/g
 }
 ```
 
-Both settings are required. Anyone with a Google account can get a Google ID token for any audience, so `ServiceAccounts` is what keeps everyone else out. List each service account by email, or by its unique ID.
+Both settings are required. Any service account in any Google Cloud project can get an ID token for any audience, so `ServiceAccounts` is what keeps everyone else out. List each service account by email, or by its unique ID.
 
 Request the token with the same audience. Google's client libraries ask the metadata server for you, for example in Node.js:
 
