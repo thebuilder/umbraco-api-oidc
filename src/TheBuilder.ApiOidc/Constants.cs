@@ -27,4 +27,12 @@ internal static class Constants
         public const string Ref = "ref";
         public const string Environment = "environment";
     }
+
+    public static class Azure
+    {
+        public const string Host = "https://login.microsoftonline.com";
+        /// <summary>Where v1.0 access tokens say they come from, though their keys are published under <see cref="Host" />.</summary>
+        public const string V1Host = "https://sts.windows.net";
+        public const string ObjectId = "oid";
+    }
 }

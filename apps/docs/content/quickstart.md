@@ -50,5 +50,5 @@ seo:
 
 ## Next
 
-- [Issuers](/issuers) covers GitHub Actions, Google Cloud, AWS, GitLab and the rest of the Vercel settings.
+- [Issuers](/issuers) covers GitHub Actions, Azure, Google Cloud, AWS, GitLab and the rest of the Vercel settings.
 - [Custom endpoints](/custom-endpoints) protects your own APIs with the same tokens.

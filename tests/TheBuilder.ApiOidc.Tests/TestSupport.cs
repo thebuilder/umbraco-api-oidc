@@ -25,7 +25,7 @@ internal sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
 
 /// <summary>
 ///     Stands in for the issuers: one signing key, published at every metadata address, and tokens shaped like
-///     the ones Vercel and GitHub Actions issue.
+///     the ones Vercel, GitHub Actions and Entra ID issue.
 /// </summary>
 internal sealed class FakeIssuers : IIssuerConfigurationProvider
 {
@@ -66,6 +66,18 @@ internal sealed class FakeIssuers : IIssuerConfigurationProvider
         Repositories = ["acme/site"],
     };
 
+    public const string AzureTenant = "3f2b8c1d-6e4a-4b7f-9d2c-8a1e5f3b7c90";
+    public const string AzureApp = "6e74172b-be56-4843-9ff4-e66a39bb12e3";
+    public const string AzurePrincipal = "e9b1f3a0-4c2d-4f7e-9a51-3b8c6d2e1f04";
+
+    public static TrustedIssuerOptions Azure() => new()
+    {
+        Preset = IssuerPreset.Azure,
+        TenantId = AzureTenant,
+        Audience = AzureApp,
+        PrincipalIds = [AzurePrincipal],
+    };
+
     public static ApiOidcOptions Options(params TrustedIssuerOptions[] issuers) => new() { Issuers = issuers.ToList() };
 
     public string VercelToken(
@@ -102,6 +114,24 @@ internal sealed class FakeIssuers : IIssuerConfigurationProvider
             ["repository_owner"] = repository.Split('/')[0],
             ["ref"] = reference,
         });
+
+    /// <summary>An app-only access token for a managed identity, in the v2.0 format or, with v1, the v1.0 one.</summary>
+    public string AzureToken(
+        bool v1 = false,
+        string tenant = AzureTenant,
+        string audience = AzureApp,
+        string principal = AzurePrincipal) =>
+        Issue(
+            v1 ? $"https://sts.windows.net/{tenant}/" : $"https://login.microsoftonline.com/{tenant}/v2.0",
+            audience,
+            new Dictionary<string, object>
+            {
+                ["sub"] = principal,
+                ["oid"] = principal,
+                ["tid"] = tenant,
+                [v1 ? "appid" : "azp"] = "0d4e2f9b-7a31-4c58-b6e2-91f3a8d5c720",
+                ["ver"] = v1 ? "1.0" : "2.0",
+            });
 
     public string Issue(
         string issuer,

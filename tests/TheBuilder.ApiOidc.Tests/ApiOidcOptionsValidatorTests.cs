@@ -11,7 +11,7 @@ public sealed class ApiOidcOptionsValidatorTests
     public void Accepts_the_package_being_off() => Assert.True(IsValid());
 
     [Fact]
-    public void Accepts_the_presets() => Assert.True(IsValid(FakeIssuers.Vercel(), FakeIssuers.GitHub()));
+    public void Accepts_the_presets() => Assert.True(IsValid(FakeIssuers.Vercel(), FakeIssuers.GitHub(), FakeIssuers.Azure()));
 
     [Fact]
     public void Requires_a_vercel_team() =>
@@ -37,6 +37,44 @@ public sealed class ApiOidcOptionsValidatorTests
         github.Repositories = ["acme/site", "other/site"];
 
         Assert.False(IsValid(github));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("contoso.onmicrosoft.com")]
+    public void Requires_an_azure_tenant_id(string? tenantId)
+    {
+        var azure = FakeIssuers.Azure();
+        azure.TenantId = tenantId;
+
+        Assert.False(IsValid(azure));
+    }
+
+    [Fact]
+    public void Requires_an_azure_audience()
+    {
+        var azure = FakeIssuers.Azure();
+        azure.Audience = null;
+
+        Assert.False(IsValid(azure));
+    }
+
+    [Fact]
+    public void Requires_an_azure_principal()
+    {
+        var azure = FakeIssuers.Azure();
+        azure.PrincipalIds = [];
+
+        Assert.False(IsValid(azure));
+    }
+
+    [Fact]
+    public void Refuses_an_azure_principal_that_is_not_an_object_id()
+    {
+        var azure = FakeIssuers.Azure();
+        azure.PrincipalIds = ["/subscriptions/123/resourceGroups/web/providers/Microsoft.ManagedIdentity/userAssignedIdentities/renderer"];
+
+        Assert.False(IsValid(azure));
     }
 
     [Fact]
