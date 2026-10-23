@@ -7,7 +7,9 @@ const docsRoot = fileURLToPath(new URL("../", import.meta.url));
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const logo = await readFile(`${docsRoot}public/logo-mark.svg`, "utf8");
 
-await sharp(Buffer.from(logo)).resize(256, 256).png().toFile(`${docsRoot}favicon.png`);
+// The favicon lives in public/ so Blume links it by URL. A root-level icon gets inlined as a data URI in every
+// page's <head>, which pushed the Open Graph tags past the first 32 KB that Slack reads, so links stopped unfurling.
+await sharp(Buffer.from(logo)).resize(256, 256).png().toFile(`${docsRoot}public/favicon.png`);
 
 // NuGet and the Umbraco Marketplace show the icon on light and dark pages, so it sits on its own dark tile.
 const mark = logo.replace(/<svg[^>]*>/, '<svg x="66" y="66" width="380" height="380" viewBox="0 0 256 256">');
@@ -23,4 +25,4 @@ const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 </svg>`;
 await sharp(Buffer.from(icon)).png().toFile(`${repoRoot}icon.png`);
 
-console.log("Generated favicon.png and the package icon.png from public/logo-mark.svg.");
+console.log("Generated public/favicon.png and the package icon.png from public/logo-mark.svg.");
