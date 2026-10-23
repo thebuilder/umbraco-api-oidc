@@ -334,4 +334,54 @@ public sealed class OidcTokenValidatorTests
 
         Assert.True((await Validate(_issuers.AzureToken(), azure)).IsValid);
     }
+
+    [Fact]
+    public async Task Accepts_a_gitlab_token_from_an_allowed_project()
+    {
+        var result = await Validate(_issuers.GitLabToken(), FakeIssuers.GitLab());
+
+        Assert.True(result.IsValid);
+        Assert.Equal("GitLab", result.Identity!.IssuerName);
+        Assert.Equal(["https://gitlab.com/.well-known/openid-configuration"], _issuers.RequestedAddresses);
+    }
+
+    [Fact]
+    public async Task Refuses_a_gitlab_project_that_is_not_listed()
+    {
+        Assert.False((await Validate(_issuers.GitLabToken(project: "acme/other"), FakeIssuers.GitLab())).IsValid);
+    }
+
+    [Theory]
+    [InlineData("acme/other", true)]
+    [InlineData("acme/web/site", true)]
+    [InlineData("ACME/Site", true)]
+    [InlineData("acme-evil/site", false)]
+    [InlineData("evil/acme/site", false)]
+    public async Task Accepts_every_project_under_the_gitlab_namespace_without_a_project_list(string project, bool valid)
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Projects = [];
+
+        Assert.Equal(valid, (await Validate(_issuers.GitLabToken(project: project), gitlab)).IsValid);
+    }
+
+    [Fact]
+    public async Task Refuses_a_gitlab_token_from_another_ref_when_refs_are_listed()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Refs = ["refs/heads/main"];
+
+        Assert.True((await Validate(_issuers.GitLabToken(), gitlab)).IsValid);
+        Assert.False((await Validate(_issuers.GitLabToken(refPath: "refs/heads/feature"), gitlab)).IsValid);
+    }
+
+    [Fact]
+    public async Task Trusts_a_self_managed_gitlab_instead_of_gitlab_com()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Host = "https://gitlab.example.com/";
+
+        Assert.True((await Validate(_issuers.GitLabToken(issuer: "https://gitlab.example.com"), gitlab)).IsValid);
+        Assert.False((await Validate(_issuers.GitLabToken(), gitlab)).IsValid);
+    }
 }

@@ -19,4 +19,7 @@ public enum IssuerPreset
     ///     tenant and principal.
     /// </summary>
     Azure,
+
+    /// <summary>GitLab CI/CD jobs, scoped by group or user and optionally by project, ref and environment.</summary>
+    GitLab,
 }

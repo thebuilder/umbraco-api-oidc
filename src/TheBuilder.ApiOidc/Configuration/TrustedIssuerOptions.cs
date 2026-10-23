@@ -1,7 +1,7 @@
 namespace TheBuilder.ApiOidc.Configuration;
 
 /// <summary>
-///     One source of tokens the package accepts. Pick a <see cref="Preset" /> for Vercel, GitHub Actions or Azure,
+///     One source of tokens the package accepts. Pick a <see cref="Preset" /> for Vercel, GitHub Actions, GitLab or Azure,
 ///     or describe any other issuer with <see cref="Issuer" />, <see cref="Audience" /> and <see cref="RequiredClaims" />.
 /// </summary>
 public sealed class TrustedIssuerOptions
@@ -21,7 +21,8 @@ public sealed class TrustedIssuerOptions
     /// <summary>
     ///     The token's <c>aud</c>: which service the token was made for. Required for a custom issuer. Vercel defaults
     ///     to <c>https://vercel.com/{team}</c> and GitHub Actions to <c>https://github.com/{owner}</c>. Azure requires
-    ///     it: the application (client) ID of the app registration that stands for the site.
+    ///     it: the application (client) ID of the app registration that stands for the site. GitLab requires it too,
+    ///     and the job asks for the same value in <c>id_tokens</c>.
     /// </summary>
     public string? Audience { get; set; }
 
@@ -45,7 +46,11 @@ public sealed class TrustedIssuerOptions
     /// <summary>Vercel: the issuer mode set on the team.</summary>
     public VercelIssuerMode IssuerMode { get; set; } = VercelIssuerMode.Team;
 
-    /// <summary>Vercel: project names or ids (<c>prj_...</c>) allowed in. Empty allows every project in the team.</summary>
+    /// <summary>
+    ///     Vercel: project names or ids (<c>prj_...</c>) allowed in. Empty allows every project in the team.
+    ///     GitLab: projects allowed in, as their full path, such as <c>acme/web/site</c>. Empty allows every project
+    ///     under the <see cref="Namespace" />.
+    /// </summary>
     public IList<string> Projects { get; set; } = [];
 
     /// <summary>
@@ -60,7 +65,19 @@ public sealed class TrustedIssuerOptions
     /// </summary>
     public IList<string> Repositories { get; set; } = [];
 
-    /// <summary>GitHub Actions: refs allowed in, such as <c>refs/heads/main</c>. Empty allows any.</summary>
+    /// <summary>
+    ///     GitLab: the group or user that owns the projects, as its full path, such as <c>acme</c> or <c>acme/web</c>.
+    ///     Its subgroups are allowed in too.
+    /// </summary>
+    public string? Namespace { get; set; }
+
+    /// <summary>
+    ///     GitLab: the address of a self-managed instance, such as <c>https://gitlab.example.com</c>. Defaults to
+    ///     <c>https://gitlab.com</c>.
+    /// </summary>
+    public string? Host { get; set; }
+
+    /// <summary>GitHub Actions and GitLab: refs allowed in, such as <c>refs/heads/main</c>. Empty allows any.</summary>
     public IList<string> Refs { get; set; } = [];
 
     /// <summary>Azure: the Entra ID directory (tenant) ID the identities belong to.</summary>
@@ -75,7 +92,7 @@ public sealed class TrustedIssuerOptions
     /// <summary>
     ///     Vercel: environments allowed in, defaulting to <c>production</c> and <c>preview</c>. Add
     ///     <c>development</c> to let local machines in.
-    ///     GitHub Actions: deployment environments allowed in. Empty allows any.
+    ///     GitHub Actions and GitLab: deployment environments allowed in. Empty allows any.
     /// </summary>
     public IList<string> Environments { get; set; } = [];
 }

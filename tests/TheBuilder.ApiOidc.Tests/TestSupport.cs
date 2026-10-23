@@ -25,7 +25,7 @@ internal sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
 
 /// <summary>
 ///     Stands in for the issuers: one signing key, published at every metadata address, and tokens shaped like
-///     the ones Vercel, GitHub Actions and Entra ID issue.
+///     the ones Vercel, GitHub Actions, GitLab and Entra ID issue.
 /// </summary>
 internal sealed class FakeIssuers : IIssuerConfigurationProvider
 {
@@ -64,6 +64,14 @@ internal sealed class FakeIssuers : IIssuerConfigurationProvider
         Audience = "https://cms.example.com",
         Owner = "acme",
         Repositories = ["acme/site"],
+    };
+
+    public static TrustedIssuerOptions GitLab() => new()
+    {
+        Preset = IssuerPreset.GitLab,
+        Audience = "https://cms.example.com",
+        Namespace = "acme",
+        Projects = ["acme/site"],
     };
 
     public const string AzureTenant = "3f2b8c1d-6e4a-4b7f-9d2c-8a1e5f3b7c90";
@@ -114,6 +122,23 @@ internal sealed class FakeIssuers : IIssuerConfigurationProvider
             ["repository_owner"] = repository.Split('/')[0],
             ["ref"] = reference,
         });
+
+    public string GitLabToken(
+        string project = "acme/site",
+        string refPath = "refs/heads/main",
+        string issuer = "https://gitlab.com",
+        string audience = "https://cms.example.com")
+    {
+        var claims = new Dictionary<string, object>
+        {
+            ["sub"] = $"project_path:{project}:ref_type:branch:ref:main",
+            ["namespace_path"] = project[..project.LastIndexOf('/')],
+            ["project_path"] = project,
+            ["ref"] = refPath.Split('/')[^1],
+            ["ref_path"] = refPath,
+        };
+        return Issue(issuer, audience, claims);
+    }
 
     /// <summary>An app-only access token for a managed identity, in the v2.0 format or, with v1, the v1.0 one.</summary>
     public string AzureToken(

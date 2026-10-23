@@ -78,6 +78,30 @@ internal static class TrustedIssuerResolver
                     rules.Add(Rule([Constants.GitHubActions.Environment], options.Environments, StringComparison.Ordinal));
                 break;
 
+            case IssuerPreset.GitLab:
+                issuer = string.IsNullOrWhiteSpace(options.Host) ? Constants.GitLab.Host : options.Host.TrimEnd('/');
+                // GitLab has no default audience: the job names one in id_tokens, and the site must expect it.
+                if (string.IsNullOrWhiteSpace(audience))
+                    failures.Add($"{path}:Audience is required, and must match the aud the job asks for in id_tokens.");
+                var group = options.Namespace?.Trim('/');
+                if (string.IsNullOrWhiteSpace(group) || group.Any(char.IsWhiteSpace))
+                    failures.Add($"{path}:Namespace must be the full path of the GitLab group or user, such as \"acme\".");
+                else if (options.Projects.Any(project => !string.IsNullOrWhiteSpace(project) &&
+                             !project.StartsWith($"{group}/", StringComparison.OrdinalIgnoreCase)))
+                    failures.Add($"{path}:Projects must belong to {group}, as {group}/project.");
+
+                // Every project on the instance shares the issuer, so the namespace is what keeps everyone else out.
+                // A group's subgroups are part of it, so a project in acme/web passes a rule for acme. GitLab treats
+                // paths case-insensitively, so the allow-lists do too.
+                rules.Add(Rule([Constants.GitLab.Namespace], [group ?? ""], StringComparison.OrdinalIgnoreCase, subpaths: true));
+                if (HasValues(options.Projects))
+                    rules.Add(Rule([Constants.GitLab.Project], options.Projects, StringComparison.OrdinalIgnoreCase));
+                if (HasValues(options.Refs))
+                    rules.Add(Rule([Constants.GitLab.Ref], options.Refs, StringComparison.Ordinal));
+                if (HasValues(options.Environments))
+                    rules.Add(Rule([Constants.GitLab.Environment], options.Environments, StringComparison.Ordinal));
+                break;
+
             case IssuerPreset.Azure:
                 if (!Guid.TryParse(options.TenantId, out var tenantId))
                     failures.Add($"{path}:TenantId must be the Entra ID directory (tenant) ID, a GUID.");
@@ -151,8 +175,12 @@ internal static class TrustedIssuerResolver
         ];
     }
 
-    private static ClaimRule Rule(IReadOnlyList<string> claimNames, IEnumerable<string> values, StringComparison comparison) =>
-        new(claimNames, values.Where(value => !string.IsNullOrWhiteSpace(value)).ToList(), comparison);
+    private static ClaimRule Rule(
+        IReadOnlyList<string> claimNames,
+        IEnumerable<string> values,
+        StringComparison comparison,
+        bool subpaths = false) =>
+        new(claimNames, values.Where(value => !string.IsNullOrWhiteSpace(value)).ToList(), comparison, subpaths);
 
     private static bool HasValues(IEnumerable<string>? values) => values?.Any(value => !string.IsNullOrWhiteSpace(value)) == true;
 }

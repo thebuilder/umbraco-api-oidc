@@ -11,7 +11,7 @@ public sealed class ApiOidcOptionsValidatorTests
     public void Accepts_the_package_being_off() => Assert.True(IsValid());
 
     [Fact]
-    public void Accepts_the_presets() => Assert.True(IsValid(FakeIssuers.Vercel(), FakeIssuers.GitHub(), FakeIssuers.Azure()));
+    public void Accepts_the_presets() => Assert.True(IsValid(FakeIssuers.Vercel(), FakeIssuers.GitHub(), FakeIssuers.GitLab(), FakeIssuers.Azure()));
 
     [Fact]
     public void Requires_a_vercel_team() =>
@@ -37,6 +37,42 @@ public sealed class ApiOidcOptionsValidatorTests
         github.Repositories = ["acme/site", "other/site"];
 
         Assert.False(IsValid(github));
+    }
+
+    [Fact]
+    public void Requires_a_gitlab_audience()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Audience = null;
+
+        Assert.False(IsValid(gitlab));
+    }
+
+    [Fact]
+    public void Requires_a_gitlab_namespace()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Namespace = null;
+
+        Assert.False(IsValid(gitlab));
+    }
+
+    [Fact]
+    public void Refuses_a_gitlab_project_of_another_namespace()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Projects = ["acme/site", "other/site"];
+
+        Assert.False(IsValid(gitlab));
+    }
+
+    [Fact]
+    public void Requires_an_https_gitlab_host()
+    {
+        var gitlab = FakeIssuers.GitLab();
+        gitlab.Host = "http://gitlab.example.com";
+
+        Assert.False(IsValid(gitlab));
     }
 
     [Theory]

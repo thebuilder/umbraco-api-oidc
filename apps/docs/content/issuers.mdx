@@ -1,6 +1,6 @@
 ---
 title: Issuers
-description: Trust tokens from Vercel, GitHub Actions, Azure, Google Cloud, AWS, GitLab and any other OIDC issuer.
+description: Trust tokens from Vercel, GitHub Actions, GitLab, Azure, Google Cloud, AWS and any other OIDC issuer.
 seo:
   image: /og/issuers.png
 ---
@@ -10,7 +10,7 @@ Each entry in `Issuers` is one source of tokens. A token is accepted when its is
 | Setting          | What it does |
 | ---------------- | ------------ |
 | `Name`           | A name for log messages and for `[RequireOidcToken(...)]`. Defaults to the preset name or the issuer URL. |
-| `Preset`         | `Vercel`, `GitHubActions`, `Azure`, or `Custom` (the default). |
+| `Preset`         | `Vercel`, `GitHubActions`, `GitLab`, `Azure`, or `Custom` (the default). |
 | `Audience`       | The `aud` the token must carry, which names the service the token was made for. |
 | `RequiredClaims` | Claims the token must carry, each with its allowed values. Added to the preset's own rules. |
 | `AllowPreview`   | Whether the token also unlocks draft content, as the API key does. Defaults to `true`. |
@@ -52,6 +52,31 @@ const token = await core.getIDToken();
 ```
 
 The token's audience says which service it was made for. Without an argument, GitHub uses `https://github.com/{owner}`, which is also this preset's default. With that default, a token your workflows send to another service that accepts GitHub's default audience would also work on your CMS. To keep them apart, pick your own audience: set it as `Audience`, such as `"https://cms.example.com"`, and pass the same value to `core.getIDToken('https://cms.example.com')`.
+
+## GitLab
+
+See GitLab's [ID token docs](https://docs.gitlab.com/ci/secrets/id_token_authentication/) for how jobs request tokens and what they contain.
+
+```json
+{ "Preset": "GitLab", "Namespace": "acme", "Audience": "https://cms.example.com" }
+```
+
+`Namespace` is the full path of your group, or a user, such as `acme` or `acme/web`. It accepts every project in the group and its subgroups, and tokens from anywhere else are refused. `Audience` is required, because GitLab has no default: pick a value for your CMS and declare the same one in the job. To narrow it down, add any of these filters:
+
+- `Projects`, as full paths, such as `["acme/web/site"]`.
+- `Refs`, such as `["refs/heads/main"]`.
+- `Environments`, the GitLab environments allowed in.
+
+Declare the token in the job, and send `$UMBRACO_TOKEN` in the header:
+
+```yaml
+build:
+  id_tokens:
+    UMBRACO_TOKEN:
+      aud: https://cms.example.com
+```
+
+For a self-managed instance, set `Host` to its address, such as `"https://gitlab.example.com"`.
 
 ## Azure
 
@@ -119,18 +144,5 @@ Request a token with [`GetWebIdentityToken`](https://docs.aws.amazon.com/IAM/lat
   "Issuer": "https://abc123-def456-ghi789-jkl012.tokens.sts.global.api.aws",
   "Audience": "https://cms.example.com",
   "RequiredClaims": { "sub": ["arn:aws:iam::123456789012:role/Renderer"] }
-}
-```
-
-### GitLab CI
-
-Declare an [ID token](https://docs.gitlab.com/ci/secrets/id_token_authentication/) in the job with your audience, and require the project path:
-
-```json
-{
-  "Name": "gitlab-build",
-  "Issuer": "https://gitlab.com",
-  "Audience": "https://cms.example.com",
-  "RequiredClaims": { "project_path": ["acme/site"] }
 }
 ```

@@ -28,6 +28,15 @@ internal static class Constants
         public const string Environment = "environment";
     }
 
+    public static class GitLab
+    {
+        public const string Host = "https://gitlab.com";
+        public const string Namespace = "namespace_path";
+        public const string Project = "project_path";
+        public const string Ref = "ref_path";
+        public const string Environment = "environment";
+    }
+
     public static class Azure
     {
         public const string Host = "https://login.microsoftonline.com";

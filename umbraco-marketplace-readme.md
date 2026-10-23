@@ -12,7 +12,7 @@ those tokens.
 
 - Accepts tokens from the Vercel teams or projects, GitHub repositories and branches, or other OIDC issuers
   you list, and refuses the rest.
-- Has presets for Vercel, GitHub Actions and Azure managed identities. Google Cloud, AWS and GitLab need an
+- Has presets for Vercel, GitHub Actions, GitLab and Azure managed identities. Google Cloud and AWS need an
   issuer URL, an audience and one required claim.
 - Leaves public access, media access and the API key as they are, so frontends can move over one at a time.
 - Grants preview access to draft content, as the API key does, unless you turn it off per issuer.

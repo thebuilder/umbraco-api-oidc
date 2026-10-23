@@ -32,10 +32,10 @@ The package requires Umbraco 17.1 or later, including 18.
 | --- | --- | --- |
 | [Vercel](https://vercel.com/docs/oidc) functions and builds | `getVercelOidcToken()` from `@vercel/oidc` | [`Vercel` preset](#vercel) |
 | [GitHub Actions](https://docs.github.com/en/actions/concepts/security/openid-connect) | `core.getIDToken(audience)` | [`GitHubActions` preset](#github-actions) |
+| [GitLab CI](https://docs.gitlab.com/ci/secrets/id_token_authentication/) | `id_tokens` in `.gitlab-ci.yml` | [`GitLab` preset](#gitlab) |
 | [Azure](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview) App Service, Functions, Container Apps, AKS and VMs | A managed identity token for your app registration | [`Azure` preset](#azure) |
 | [Google Cloud](https://docs.cloud.google.com/docs/authentication/get-id-token) Run, Functions and GKE | The metadata server, with your audience | [Custom issuer](#google-cloud) |
 | [AWS](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_outbound.html) Lambda, ECS and EC2 | STS `GetWebIdentityToken` (IAM outbound identity federation) | [Custom issuer](#aws) |
-| [GitLab CI](https://docs.gitlab.com/ci/secrets/id_token_authentication/) | `id_tokens` in `.gitlab-ci.yml` | [Custom issuer](#gitlab-ci) |
 
 Cloudflare Workers and Netlify Functions have no built-in workload token, so frontends there keep using
 the API key.
@@ -177,7 +177,7 @@ match an entry. Every entry accepts these settings:
 | Setting          | What it does |
 | ---------------- | ------------ |
 | `Name`           | A name for log messages and for `[RequireOidcToken(...)]`. Defaults to the preset name or the issuer URL. |
-| `Preset`         | `Vercel`, `GitHubActions`, `Azure`, or `Custom` (the default). |
+| `Preset`         | `Vercel`, `GitHubActions`, `GitLab`, `Azure`, or `Custom` (the default). |
 | `Audience`       | The `aud` the token must carry, which names the service the token was made for. |
 | `RequiredClaims` | Claims the token must carry, each with its allowed values. Added to the preset's own rules. |
 | `AllowPreview`   | Whether the token also unlocks draft content, as the API key does. Defaults to `true`. |
@@ -230,6 +230,35 @@ The token's audience says which service it was made for. Without an argument, Gi
 workflows send to another service that accepts GitHub's default audience would also work on your CMS. To
 keep them apart, pick your own audience: set it as `Audience`, such as `"https://cms.example.com"`, and pass
 the same value to `core.getIDToken('https://cms.example.com')`.
+
+### GitLab
+
+See GitLab's [ID token docs](https://docs.gitlab.com/ci/secrets/id_token_authentication/) for how jobs request
+tokens and what they contain.
+
+```json
+{ "Preset": "GitLab", "Namespace": "acme", "Audience": "https://cms.example.com" }
+```
+
+`Namespace` is the full path of your group, or a user, such as `acme` or `acme/web`. It accepts every project
+in the group and its subgroups, and tokens from anywhere else are refused. `Audience` is required, because
+GitLab has no default: pick a value for your CMS and declare the same one in the job. To narrow it down, add
+any of these filters:
+
+- `Projects`, as full paths, such as `["acme/web/site"]`.
+- `Refs`, such as `["refs/heads/main"]`.
+- `Environments`, the GitLab environments allowed in.
+
+Declare the token in the job, and send `$UMBRACO_TOKEN` in the header:
+
+```yaml
+build:
+  id_tokens:
+    UMBRACO_TOKEN:
+      aud: https://cms.example.com
+```
+
+For a self-managed instance, set `Host` to its address, such as `"https://gitlab.example.com"`.
 
 ### Azure
 
@@ -316,19 +345,6 @@ that asked for the token:
 }
 ```
 
-#### GitLab CI
-
-Declare an [ID token](https://docs.gitlab.com/ci/secrets/id_token_authentication/) in the job with
-your audience, and require the project path:
-
-```json
-{
-  "Name": "gitlab-build",
-  "Issuer": "https://gitlab.com",
-  "Audience": "https://cms.example.com",
-  "RequiredClaims": { "project_path": ["acme/site"] }
-}
-```
 
 ### Other settings
 
@@ -365,7 +381,7 @@ endpoints that require it.
 The full documentation is at [api-oidc.thebuilder.dk](https://api-oidc.thebuilder.dk).
 
 - [Quickstart](https://api-oidc.thebuilder.dk/quickstart): install the package, trust your platform and send the first token.
-- [Issuers](https://api-oidc.thebuilder.dk/issuers): set up Vercel, GitHub Actions, Azure, Google Cloud, AWS, GitLab or any other issuer.
+- [Issuers](https://api-oidc.thebuilder.dk/issuers): set up Vercel, GitHub Actions, GitLab, Azure, Google Cloud, AWS or any other issuer.
 - [Custom endpoints](https://api-oidc.thebuilder.dk/custom-endpoints): protect your own controllers and minimal APIs.
 - [Configuration](https://api-oidc.thebuilder.dk/configuration): the settings that apply to every issuer.
 
