@@ -37,6 +37,14 @@ internal static class Constants
         public const string Environment = "environment";
     }
 
+    public static class GoogleCloud
+    {
+        public const string Issuer = "https://accounts.google.com";
+        public const string ServiceAccountDomain = ".gserviceaccount.com";
+        public const string Email = "email";
+        public const string Subject = "sub";
+    }
+
     public static class Azure
     {
         public const string Host = "https://login.microsoftonline.com";

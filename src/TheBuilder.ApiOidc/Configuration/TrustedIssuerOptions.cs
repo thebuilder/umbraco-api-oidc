@@ -1,7 +1,7 @@
 namespace TheBuilder.ApiOidc.Configuration;
 
 /// <summary>
-///     One source of tokens the package accepts. Pick a <see cref="Preset" /> for Vercel, GitHub Actions, GitLab or Azure,
+///     One source of tokens the package accepts. Pick a <see cref="Preset" /> for Vercel, GitHub Actions, GitLab, Google Cloud or Azure,
 ///     or describe any other issuer with <see cref="Issuer" />, <see cref="Audience" /> and <see cref="RequiredClaims" />.
 /// </summary>
 public sealed class TrustedIssuerOptions
@@ -21,8 +21,8 @@ public sealed class TrustedIssuerOptions
     /// <summary>
     ///     The token's <c>aud</c>: which service the token was made for. Required for a custom issuer. Vercel defaults
     ///     to <c>https://vercel.com/{team}</c> and GitHub Actions to <c>https://github.com/{owner}</c>. Azure requires
-    ///     it: the application (client) ID of the app registration that stands for the site. GitLab requires it too,
-    ///     and the job asks for the same value in <c>id_tokens</c>.
+    ///     it: the application (client) ID of the app registration that stands for the site. GitLab and Google Cloud
+    ///     require it too, and the workload asks for the same value when it requests the token.
     /// </summary>
     public string? Audience { get; set; }
 
@@ -79,6 +79,12 @@ public sealed class TrustedIssuerOptions
 
     /// <summary>GitHub Actions and GitLab: refs allowed in, such as <c>refs/heads/main</c>. Empty allows any.</summary>
     public IList<string> Refs { get; set; } = [];
+
+    /// <summary>
+    ///     Google Cloud: the service accounts allowed in, by email, such as
+    ///     <c>renderer@acme.iam.gserviceaccount.com</c>, or by unique ID. At least one is required.
+    /// </summary>
+    public IList<string> ServiceAccounts { get; set; } = [];
 
     /// <summary>Azure: the Entra ID directory (tenant) ID the identities belong to.</summary>
     public string? TenantId { get; set; }

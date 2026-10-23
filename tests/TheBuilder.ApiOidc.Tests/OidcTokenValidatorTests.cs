@@ -384,4 +384,49 @@ public sealed class OidcTokenValidatorTests
         Assert.True((await Validate(_issuers.GitLabToken(issuer: "https://gitlab.example.com"), gitlab)).IsValid);
         Assert.False((await Validate(_issuers.GitLabToken(), gitlab)).IsValid);
     }
+
+    [Fact]
+    public async Task Accepts_a_google_token_from_an_allowed_service_account()
+    {
+        var result = await Validate(_issuers.GoogleToken(), FakeIssuers.GoogleCloud());
+
+        Assert.True(result.IsValid);
+        Assert.Equal("GoogleCloud", result.Identity!.IssuerName);
+        Assert.Equal(["https://accounts.google.com/.well-known/openid-configuration"], _issuers.RequestedAddresses);
+    }
+
+    [Fact]
+    public async Task Refuses_another_google_account()
+    {
+        var token = _issuers.GoogleToken(email: "someone@gmail.com", subject: "117392648201937465021");
+
+        Assert.False((await Validate(token, FakeIssuers.GoogleCloud())).IsValid);
+    }
+
+    [Fact]
+    public async Task Refuses_a_google_token_for_another_audience()
+    {
+        Assert.False((await Validate(_issuers.GoogleToken(audience: "https://other.example.com"), FakeIssuers.GoogleCloud())).IsValid);
+    }
+
+    [Fact]
+    public async Task Matches_a_google_service_account_by_unique_id_when_the_token_has_no_email()
+    {
+        var byEmail = FakeIssuers.GoogleCloud();
+        var byId = FakeIssuers.GoogleCloud();
+        byId.ServiceAccounts = [FakeIssuers.GoogleServiceAccountId];
+
+        Assert.False((await Validate(_issuers.GoogleToken(email: null), byEmail)).IsValid);
+        Assert.True((await Validate(_issuers.GoogleToken(email: null), byId)).IsValid);
+        Assert.True((await Validate(_issuers.GoogleToken(), byId)).IsValid);
+    }
+
+    [Fact]
+    public async Task Matches_google_service_account_emails_ignoring_case()
+    {
+        var google = FakeIssuers.GoogleCloud();
+        google.ServiceAccounts = ["Renderer@acme.iam.gserviceaccount.com"];
+
+        Assert.True((await Validate(_issuers.GoogleToken(), google)).IsValid);
+    }
 }

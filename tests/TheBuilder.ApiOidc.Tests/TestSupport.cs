@@ -25,7 +25,7 @@ internal sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
 
 /// <summary>
 ///     Stands in for the issuers: one signing key, published at every metadata address, and tokens shaped like
-///     the ones Vercel, GitHub Actions, GitLab and Entra ID issue.
+///     the ones Vercel, GitHub Actions, GitLab, Google and Entra ID issue.
 /// </summary>
 internal sealed class FakeIssuers : IIssuerConfigurationProvider
 {
@@ -72,6 +72,15 @@ internal sealed class FakeIssuers : IIssuerConfigurationProvider
         Audience = "https://cms.example.com",
         Namespace = "acme",
         Projects = ["acme/site"],
+    };
+
+    public const string GoogleServiceAccountId = "104263578915240387162";
+
+    public static TrustedIssuerOptions GoogleCloud() => new()
+    {
+        Preset = IssuerPreset.GoogleCloud,
+        Audience = "https://cms.example.com",
+        ServiceAccounts = ["renderer@acme.iam.gserviceaccount.com"],
     };
 
     public const string AzureTenant = "3f2b8c1d-6e4a-4b7f-9d2c-8a1e5f3b7c90";
@@ -138,6 +147,22 @@ internal sealed class FakeIssuers : IIssuerConfigurationProvider
             ["ref_path"] = refPath,
         };
         return Issue(issuer, audience, claims);
+    }
+
+    /// <summary>A metadata server ID token, with the email only when it was requested in full format.</summary>
+    public string GoogleToken(
+        string? email = "renderer@acme.iam.gserviceaccount.com",
+        string subject = GoogleServiceAccountId,
+        string audience = "https://cms.example.com")
+    {
+        var claims = new Dictionary<string, object> { ["sub"] = subject, ["azp"] = subject };
+        if (email is not null)
+        {
+            claims["email"] = email;
+            claims["email_verified"] = true;
+        }
+
+        return Issue("https://accounts.google.com", audience, claims);
     }
 
     /// <summary>An app-only access token for a managed identity, in the v2.0 format or, with v1, the v1.0 one.</summary>

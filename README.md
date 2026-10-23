@@ -33,8 +33,8 @@ The package requires Umbraco 17.1 or later, including 18.
 | [Vercel](https://vercel.com/docs/oidc) functions and builds | `getVercelOidcToken()` from `@vercel/oidc` | [`Vercel` preset](#vercel) |
 | [GitHub Actions](https://docs.github.com/en/actions/concepts/security/openid-connect) | `core.getIDToken(audience)` | [`GitHubActions` preset](#github-actions) |
 | [GitLab CI](https://docs.gitlab.com/ci/secrets/id_token_authentication/) | `id_tokens` in `.gitlab-ci.yml` | [`GitLab` preset](#gitlab) |
+| [Google Cloud](https://docs.cloud.google.com/docs/authentication/get-id-token) Run, Functions and GKE | The metadata server, with your audience | [`GoogleCloud` preset](#google-cloud) |
 | [Azure](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview) App Service, Functions, Container Apps, AKS and VMs | A managed identity token for your app registration | [`Azure` preset](#azure) |
-| [Google Cloud](https://docs.cloud.google.com/docs/authentication/get-id-token) Run, Functions and GKE | The metadata server, with your audience | [Custom issuer](#google-cloud) |
 | [AWS](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_outbound.html) Lambda, ECS and EC2 | STS `GetWebIdentityToken` (IAM outbound identity federation) | [Custom issuer](#aws) |
 
 Cloudflare Workers and Netlify Functions have no built-in workload token, so frontends there keep using
@@ -177,7 +177,7 @@ match an entry. Every entry accepts these settings:
 | Setting          | What it does |
 | ---------------- | ------------ |
 | `Name`           | A name for log messages and for `[RequireOidcToken(...)]`. Defaults to the preset name or the issuer URL. |
-| `Preset`         | `Vercel`, `GitHubActions`, `GitLab`, `Azure`, or `Custom` (the default). |
+| `Preset`         | `Vercel`, `GitHubActions`, `GitLab`, `GoogleCloud`, `Azure`, or `Custom` (the default). |
 | `Audience`       | The `aud` the token must carry, which names the service the token was made for. |
 | `RequiredClaims` | Claims the token must carry, each with its allowed values. Added to the preset's own rules. |
 | `AllowPreview`   | Whether the token also unlocks draft content, as the API key does. Defaults to `true`. |
@@ -260,6 +260,35 @@ build:
 
 For a self-managed instance, set `Host` to its address, such as `"https://gitlab.example.com"`.
 
+### Google Cloud
+
+See Google's [ID token docs](https://docs.cloud.google.com/docs/authentication/get-id-token) for how Cloud
+Run, Cloud Functions, GKE and other workloads request tokens.
+
+```json
+{
+  "Preset": "GoogleCloud",
+  "Audience": "https://cms.example.com",
+  "ServiceAccounts": ["renderer@acme.iam.gserviceaccount.com"]
+}
+```
+
+Both settings are required. Anyone with a Google account can get a Google ID token for any audience, so
+`ServiceAccounts` is what keeps everyone else out. List each service account by email, or by its unique ID.
+
+Request the token with the same audience. Google's client libraries ask the metadata server for you, for
+example in Node.js:
+
+```ts
+import { GoogleAuth } from 'google-auth-library';
+
+const client = await new GoogleAuth().getIdTokenClient('https://cms.example.com');
+const token = await client.idTokenProvider.fetchIdToken('https://cms.example.com');
+```
+
+The metadata server only puts the email in the token when asked for the full format, with `format=full`. If
+you call it yourself without that, list the service account's unique ID instead, which is always in `sub`.
+
 ### Azure
 
 See Microsoft's [managed identity docs](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview)
@@ -309,25 +338,11 @@ Azure Government and the other national clouds sign in on another host. Set them
 ### Any other issuer
 
 `Issuer`, `Audience` and at least one required claim are needed. Without a claim, any workload the
-issuer serves could get in. With Google, for example, that would be anyone with a Google account.
-Each required claim must match a top-level string claim in the token, including its case.
+issuer serves could get in. Each required claim must match a top-level string claim in the token,
+including its case.
 
 Decode a real token from your workload, for example with [jwt.io](https://jwt.io), before you write the
 entry: it shows the exact `iss`, `aud` and claims to match.
-
-#### Google Cloud
-
-Request an [ID token](https://docs.cloud.google.com/docs/authentication/get-id-token) from the metadata
-server with your audience, and require the service account's email:
-
-```json
-{
-  "Name": "renderer",
-  "Issuer": "https://accounts.google.com",
-  "Audience": "https://cms.example.com",
-  "RequiredClaims": { "email": ["renderer@acme.iam.gserviceaccount.com"] }
-}
-```
 
 #### AWS
 
@@ -344,7 +359,6 @@ that asked for the token:
   "RequiredClaims": { "sub": ["arn:aws:iam::123456789012:role/Renderer"] }
 }
 ```
-
 
 ### Other settings
 
@@ -381,7 +395,7 @@ endpoints that require it.
 The full documentation is at [api-oidc.thebuilder.dk](https://api-oidc.thebuilder.dk).
 
 - [Quickstart](https://api-oidc.thebuilder.dk/quickstart): install the package, trust your platform and send the first token.
-- [Issuers](https://api-oidc.thebuilder.dk/issuers): set up Vercel, GitHub Actions, GitLab, Azure, Google Cloud, AWS or any other issuer.
+- [Issuers](https://api-oidc.thebuilder.dk/issuers): set up Vercel, GitHub Actions, GitLab, Google Cloud, Azure, AWS or any other issuer.
 - [Custom endpoints](https://api-oidc.thebuilder.dk/custom-endpoints): protect your own controllers and minimal APIs.
 - [Configuration](https://api-oidc.thebuilder.dk/configuration): the settings that apply to every issuer.
 

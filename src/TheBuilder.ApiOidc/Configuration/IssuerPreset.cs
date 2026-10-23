@@ -22,4 +22,9 @@ public enum IssuerPreset
 
     /// <summary>GitLab CI/CD jobs, scoped by group or user and optionally by project, ref and environment.</summary>
     GitLab,
+
+    /// <summary>
+    ///     Google Cloud workloads such as Cloud Run, Cloud Functions and GKE, with an ID token for a service account.
+    /// </summary>
+    GoogleCloud,
 }

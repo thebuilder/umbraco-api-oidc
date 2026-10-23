@@ -102,6 +102,25 @@ internal static class TrustedIssuerResolver
                     rules.Add(Rule([Constants.GitLab.Environment], options.Environments, StringComparison.Ordinal));
                 break;
 
+            case IssuerPreset.GoogleCloud:
+                issuer = Constants.GoogleCloud.Issuer;
+                // Anyone can get a Google ID token for any audience, so the audience says only that the token was
+                // meant for this site. It is still required, so a token sent to another service cannot be replayed here.
+                if (string.IsNullOrWhiteSpace(audience))
+                    failures.Add($"{path}:Audience is required, and must match the audience the workload asks for.");
+                if (!HasValues(options.ServiceAccounts))
+                    failures.Add($"{path}:ServiceAccounts must name at least one, or anyone with a Google account could get in.");
+                else if (options.ServiceAccounts.Any(account => !string.IsNullOrWhiteSpace(account) && !IsServiceAccount(account)))
+                    failures.Add($"{path}:ServiceAccounts must be service account emails, ending in {Constants.GoogleCloud.ServiceAccountDomain}, or unique IDs.");
+
+                // The metadata server leaves email out unless the token is requested in full format, while sub is
+                // always the service account's unique ID. An email and a unique ID cannot be mistaken for each other.
+                rules.Add(Rule(
+                    [Constants.GoogleCloud.Email, Constants.GoogleCloud.Subject],
+                    options.ServiceAccounts.Select(account => account.Trim()),
+                    StringComparison.OrdinalIgnoreCase));
+                break;
+
             case IssuerPreset.Azure:
                 if (!Guid.TryParse(options.TenantId, out var tenantId))
                     failures.Add($"{path}:TenantId must be the Entra ID directory (tenant) ID, a GUID.");
@@ -181,6 +200,14 @@ internal static class TrustedIssuerResolver
         StringComparison comparison,
         bool subpaths = false) =>
         new(claimNames, values.Where(value => !string.IsNullOrWhiteSpace(value)).ToList(), comparison, subpaths);
+
+    private static bool IsServiceAccount(string account)
+    {
+        account = account.Trim();
+        return account.All(char.IsAsciiDigit) ||
+               (account.IndexOf('@') > 0 &&
+                account.EndsWith(Constants.GoogleCloud.ServiceAccountDomain, StringComparison.OrdinalIgnoreCase));
+    }
 
     private static bool HasValues(IEnumerable<string>? values) => values?.Any(value => !string.IsNullOrWhiteSpace(value)) == true;
 }
