@@ -7,7 +7,6 @@
   <ItemGroup>
     <!-- Pinned to the newest 17.x so the sample runs on a patched Umbraco; the package itself supports the full range. -->
     <PackageReference Include="Umbraco.Cms" VersionOverride="17.7.1" />
-    <PackageReference Include="SixLabors.ImageSharp" />
     <ProjectReference Include="../../src/TheBuilder.ApiOidc/TheBuilder.ApiOidc.csproj" />
   </ItemGroup>
 </Project>
