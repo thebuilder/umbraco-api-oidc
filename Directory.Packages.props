@@ -13,6 +13,9 @@
     <PackageVersion Include="MimeKit" Version="4.18.1" />
     <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.13" />
+    <!-- The sample site only: Umbraco brings 3.1.12, and 3.2.0 fixes its advisories
+         (GHSA-v76p-62qx-wwq2 and others). -->
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.2.0" />
     <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
     <PackageVersion Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.23.0" />
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.13" />
