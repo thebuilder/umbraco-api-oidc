@@ -70,7 +70,7 @@ const features = [
       title="Your platform's token,"
       accent="instead of a shared API key."
       description="Vercel, GitHub Actions, Azure, Google Cloud, AWS and GitLab give each workload a short-lived, signed token. Umbraco accepts it on the Delivery API and on the endpoints you choose."
-      compatibility="Umbraco CMS 17.1 or later · .NET 10"
+      compatibility={apiOidcPackage.compatibility}
     >
       <HeroParticles slot="background" logo="/logo-mark.svg" />
       <Fragment slot="actions">
