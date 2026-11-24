@@ -28,7 +28,7 @@ Cloudflare Workers and Netlify Functions have no built-in workload token, so fro
 
 ## Requirements
 
-- Umbraco CMS 17.1 or later, Umbraco 18 included, on .NET 10.
+- Umbraco CMS 17.1 through 19.x: Umbraco 17 and 18 on .NET 10, Umbraco 19 on .NET 11.
 - A platform that gives your frontend an OIDC token. The table above lists the common ones.
 
 ## Where to go next

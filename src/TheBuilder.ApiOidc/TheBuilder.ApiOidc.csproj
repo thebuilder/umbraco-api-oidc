@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
     <PackageId>TheBuilder.ApiOidc</PackageId>
     <Product>OIDC for Umbraco APIs</Product>
     <Title>OIDC workload tokens for the Umbraco Delivery API and custom APIs</Title>
@@ -22,7 +22,9 @@
     <PackageReference Include="Umbraco.Cms.Web.Common" VersionOverride="$(UmbracoVersion)" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
-    <!-- Security floors for dependencies inherited from the supported Umbraco range. -->
+  </ItemGroup>
+  <!-- Security floors for dependencies inherited from Umbraco 17 and 18. Umbraco 19 already requires newer versions. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="MailKit" />
     <PackageReference Include="MessagePack" />
     <PackageReference Include="MimeKit" />
