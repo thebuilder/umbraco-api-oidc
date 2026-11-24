@@ -72,7 +72,7 @@ jobs:
           dotnet test tests/TheBuilder.ApiOidc.Tests/TheBuilder.ApiOidc.Tests.csproj
           --configuration Release
           '-p:TargetFrameworks=${{ matrix.framework }}'
-          '-p:TargetFrameworks=${{ matrix.framework }}' '-p:UmbracoVersion=${{ matrix.umbraco-version }}'
+          '-p:UmbracoVersion=${{ matrix.umbraco-version }}'
 
   package:
     name: Sample and package
