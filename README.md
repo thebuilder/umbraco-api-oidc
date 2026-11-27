@@ -24,7 +24,7 @@ lets Umbraco accept those tokens on the Delivery API and on [your own endpoints]
 - Public access, media access and the API key work as before, so you can move frontends over one at a time
   and remove the key after the last one.
 
-The package requires Umbraco 17.1 or later, including 18.
+The package supports Umbraco 17.1 through 19.x: Umbraco 17 and 18 on .NET 10, Umbraco 19 on .NET 11.
 
 ## Supported platforms
 

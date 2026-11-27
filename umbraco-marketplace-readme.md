@@ -25,7 +25,7 @@ those tokens.
 dotnet add package TheBuilder.ApiOidc
 ```
 
-The package supports Umbraco CMS 17.1 through 18.x on .NET 10. It has no backoffice UI; you configure the
+The package supports Umbraco CMS 17.1 through 19.x: Umbraco 17 and 18 on .NET 10, Umbraco 19 on .NET 11. It has no backoffice UI; you configure the
 trusted issuers in `appsettings.json`.
 
 [Read the documentation](https://github.com/thebuilder/umbraco-api-oidc#readme) for setup on each
